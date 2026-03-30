@@ -1,0 +1,144 @@
+# Insight Hub Campaign Dashboard — Automated Data Fetch
+#
+# Runs daily at 7:00 AM UTC (9:00 AM CET / 8:00 AM GMT)
+# Can also be triggered manually from GitHub Actions UI at any time.
+#
+# Fetches data from: Customer.io, HubSpot, PostHog, Lemlist
+# Updates: data/metrics.json
+# Deploys: GitHub Pages
+
+name: Fetch Campaign Metrics
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # daily at 7am UTC
+  workflow_dispatch:        # manual "Run workflow" button in GitHub UI
+    inputs:
+      force_sample_data:
+        description: 'Use sample data instead of live APIs (for testing)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+permissions:
+  contents: write   # needed to commit metrics.json back to the repo
+
+jobs:
+  fetch-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ── 1. CHECKOUT
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. PYTHON SETUP
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      # ── 3. CREATE TEMP DIRECTORY
+      - name: Create temp directory
+        run: mkdir -p /tmp/ih_dash
+
+      # ── 4. FETCH CUSTOMER.IO
+      - name: Fetch Customer.io metrics
+        if: ${{ github.event.inputs.force_sample_data != 'true' }}
+        env:
+          CIO_API_KEY: ${{ secrets.CIO_API_KEY }}
+          CIO_CAMPAIGN_NAME: "Insight Hub"
+        run: |
+          python scripts/fetch_cio.py > /tmp/ih_dash/cio.json
+          echo "✓ Customer.io done"
+        continue-on-error: true   # don't fail whole run if one source errors
+
+      # ── 5. FETCH HUBSPOT
+      - name: Fetch HubSpot metrics
+        if: ${{ github.event.inputs.force_sample_data != 'true' }}
+        env:
+          HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
+          HUBSPOT_PIPELINE_ID: ${{ secrets.HUBSPOT_PIPELINE_ID }}
+          HUBSPOT_CAMPAIGN_NAME: "Insight Hub"
+        run: |
+          python scripts/fetch_hubspot.py > /tmp/ih_dash/hubspot.json
+          echo "✓ HubSpot done"
+        continue-on-error: true
+
+      # ── 6. FETCH POSTHOG
+      - name: Fetch PostHog metrics
+        if: ${{ github.event.inputs.force_sample_data != 'true' }}
+        env:
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_PROJECT_ID: ${{ secrets.POSTHOG_PROJECT_ID }}
+          POSTHOG_EVENT_ACCOUNT_CREATED: ${{ secrets.POSTHOG_EVENT_ACCOUNT_CREATED }}
+          POSTHOG_EVENT_WIDGET_CLICK: ${{ secrets.POSTHOG_EVENT_WIDGET_CLICK }}
+          POSTHOG_EVENT_SEGMENT_SUBMIT: ${{ secrets.POSTHOG_EVENT_SEGMENT_SUBMIT }}
+          POSTHOG_EVENT_CTA_CLICK: ${{ secrets.POSTHOG_EVENT_CTA_CLICK }}
+          POSTHOG_DAYS_LOOKBACK: "90"
+        run: |
+          python scripts/fetch_posthog.py > /tmp/ih_dash/posthog.json
+          echo "✓ PostHog done"
+        continue-on-error: true
+
+      # ── 7. FETCH LEMLIST
+      - name: Fetch Lemlist metrics
+        if: ${{ github.event.inputs.force_sample_data != 'true' }}
+        env:
+          LEMLIST_API_KEY: ${{ secrets.LEMLIST_API_KEY }}
+          LEMLIST_CAMPAIGN_NAME: "Insight Hub"
+        run: |
+          python scripts/fetch_lemlist.py > /tmp/ih_dash/lemlist.json
+          echo "✓ Lemlist done"
+        continue-on-error: true
+
+      # ── 8. BUILD metrics.json (or use sample data)
+      - name: Build metrics.json
+        env:
+          CAMPAIGN_START: "2026-03-01"
+        run: |
+          if [ "${{ github.event.inputs.force_sample_data }}" = "true" ]; then
+            echo "Using sample data (manual override)"
+            python -c "
+          import json
+          from pathlib import Path
+
+          sample = Path('data/metrics.json')
+          data = json.loads(sample.read_text())
+          data['meta']['is_sample_data'] = True
+          sample.write_text(json.dumps(data, indent=2))
+          print('Sample data mode: metrics.json unchanged')
+          "
+          else
+            python scripts/build_metrics.py
+          fi
+
+      # ── 9. SHOW RESULTS IN LOGS
+      - name: Show updated metrics summary
+        run: |
+          echo "=== metrics.json summary ==="
+          python -c "
+          import json
+          d = json.load(open('data/metrics.json'))
+          s = d['summary']
+          print(f\"Health:        {s['overall_health'].upper()}\")
+          print(f\"Sign-ups:      {s['total_verified_signups']}\")
+          print(f\"Activation:    {s['activation_rate']}%\")
+          print(f\"Submissions:   {s['segment_submissions']}\")
+          print(f\"Deals:         {s['deals_in_pipeline']}\")
+          print(f\"Updated:       {d['meta']['last_updated']}\")
+          "
+
+      # ── 10. COMMIT & PUSH metrics.json
+      - name: Commit updated metrics.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/metrics.json
+          git diff --staged --quiet || git commit -m "chore: update campaign metrics [$(date -u +%Y-%m-%d)]"
+          git push

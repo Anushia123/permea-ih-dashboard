@@ -1,16 +1,17 @@
 {
   "meta": {
-    "last_updated": "2026-03-24T07:00:00Z",
+    "last_updated": "2026-04-12T20:24:27.754645+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-03-24",
-    "is_sample_data": true
+    "period_end": "2026-04-12",
+    "is_sample_data": false
   },
   "summary": {
-    "total_verified_signups": 47,
-    "activation_rate": 61.7,
-    "segment_submissions": 18,
-    "deals_in_pipeline": 4
+    "total_verified_signups": 0,
+    "activation_rate": 0,
+    "segment_submissions": 0,
+    "deals_in_pipeline": 0,
+    "overall_health": "yellow"
   },
   "gate1": {
     "name": "Messaging & Reach",
@@ -18,77 +19,76 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 480,
-        "emails_opened": 264,
-        "open_rate": 55.0,
-        "clicks": 66,
-        "ctr": 25.0,
-        "replies": 14,
-        "bounced": 12,
-        "unsubscribed": 3
+        "emails_sent": 0,
+        "emails_opened": 0,
+        "open_rate": 0,
+        "clicks": 0,
+        "ctr": 0,
+        "replies": 0,
+        "bounced": 0,
+        "unsubscribed": 0
       },
       "hubspot": {
         "label": "HubSpot Email (Tier 1 Personal)",
-        "emails_sent": 24,
-        "emails_opened": 16,
-        "open_rate": 66.7,
-        "clicks": 6,
-        "ctr": 37.5,
-        "replies": 4,
+        "emails_sent": 0,
+        "emails_opened": 0,
+        "open_rate": 0,
+        "clicks": 0,
+        "ctr": 0,
+        "replies": 0,
         "bounced": 0,
         "unsubscribed": 0
       },
       "linkedin": {
         "label": "LinkedIn Paid",
-        "impressions": 12400,
-        "clicks": 62,
-        "ctr": 0.5,
-        "cost_per_click": 8.20,
-        "conversions": 9,
-        "spend": 509
+        "impressions": null,
+        "clicks": null,
+        "ctr": null,
+        "cost_per_click": null,
+        "conversions": null,
+        "spend": null,
+        "status": "pending_oauth"
       },
       "google": {
         "label": "Google Paid",
-        "status": "deferred",
-        "impressions": null,
-        "clicks": null,
-        "ctr": null
+        "status": "deferred"
       },
       "organic": {
         "label": "Organic",
-        "landing_page_visits": 38,
-        "source": "Direct / organic search"
+        "landing_page_visits": null,
+        "source": "UTM tracking"
       }
     },
     "landing_page": {
-      "total_visits": 163,
-      "cvr_to_signup_page": 38.7,
-      "signup_page_visits": 63
+      "total_visits": null,
+      "cvr_to_signup_page": null,
+      "signup_page_visits": null
     }
   },
   "gate2": {
     "name": "Sign-Up & Account Creation",
     "owner": "Marketing + Product",
-    "signup_page_visits": 63,
-    "verified_signups": 47,
-    "signup_conversion_rate": 74.6,
+    "signup_page_visits": null,
+    "verified_signups": 0,
+    "signup_conversion_rate": null,
     "signups_by_source": {
-      "lemlist_email": 21,
-      "hubspot_email": 6,
-      "linkedin_paid": 9,
-      "organic": 11
+      "customer_io": null,
+      "lemlist": null,
+      "hubspot": null,
+      "linkedin": null,
+      "temedica_website": null
     }
   },
   "gate3": {
     "name": "Onboarding & Activation",
     "owner": "Product + Marketing",
-    "verified_signups": 47,
-    "logged_in_within_48h": 31,
-    "login_48h_rate": 66.0,
-    "activated_users": 29,
-    "activation_rate_7day": 61.7,
+    "verified_signups": 0,
+    "logged_in_within_48h": 0,
+    "login_48h_rate": 0,
+    "activated_users": 0,
+    "activation_rate_7day": 0,
     "weekly_retention": {
-      "week1": 61.7,
+      "week1": null,
       "week2": null,
       "week3": null,
       "week4": null,
@@ -99,40 +99,75 @@
   "gate4": {
     "name": "Market Monitor Submission",
     "owner": "Product",
-    "verified_signups": 47,
-    "activated_users": 29,
-    "segment_submissions": 18,
-    "submission_rate_from_signup": 38.3,
-    "submission_rate_from_activation": 62.1
+    "verified_signups": 0,
+    "activated_users": 0,
+    "segment_submissions": 0,
+    "submission_rate_from_signup": 0,
+    "submission_rate_from_activation": 0
   },
   "gate5": {
     "name": "Commercial Conversion",
     "owner": "Commercial (Ludger, Dennis, Max)",
-    "segment_submissions": 18,
-    "cta_clicks_inapp": 11,
-    "commercial_touch_rate": 61.1,
-    "sales_followup_within_1day": 8,
-    "sales_followup_rate": 72.7,
-    "deals_created": 4,
+    "segment_submissions": 0,
+    "cta_clicks_inapp": 0,
+    "commercial_touch_rate": 0,
+    "sales_followup_within_1day": null,
+    "sales_followup_rate": null,
+    "deals_created": 0,
     "deals_closed_h1": 0,
-    "deals_by_stage": {
-      "qualified": 2,
-      "evaluation": 1,
-      "proposal": 1,
-      "closed_won": 0
-    },
+    "deals_by_stage": {},
     "h1_goal": 5
   },
   "benchmarks": {
-    "email_open_rate": { "conservative": 60, "realistic": 65, "optimal": 70 },
-    "email_ctr": { "conservative": 25, "realistic": 30, "optimal": 35 },
-    "account_creation_rate": { "conservative": 30, "realistic": 35, "optimal": 40 },
-    "activation_rate": { "conservative": 60, "realistic": 65, "optimal": 75 },
-    "segment_submission_rate": { "conservative": 40, "realistic": 45, "optimal": 55 },
-    "sales_evaluation_rate": { "conservative": 55, "realistic": 60, "optimal": 70 },
-    "deal_close_rate": { "conservative": 25, "realistic": 30, "optimal": 35 },
-    "deals_closed_h1": { "conservative": 2, "realistic": 4, "optimal": 7 },
-    "linkedin_ctr": { "conservative": 0.3, "realistic": 0.5, "optimal": 0.6 },
-    "landing_page_cvr": { "conservative": 15, "realistic": 20, "optimal": 25 }
+    "email_open_rate": {
+      "conservative": 60,
+      "realistic": 65,
+      "optimal": 70
+    },
+    "email_ctr": {
+      "conservative": 25,
+      "realistic": 30,
+      "optimal": 35
+    },
+    "account_creation_rate": {
+      "conservative": 30,
+      "realistic": 35,
+      "optimal": 40
+    },
+    "activation_rate": {
+      "conservative": 60,
+      "realistic": 65,
+      "optimal": 75
+    },
+    "segment_submission_rate": {
+      "conservative": 40,
+      "realistic": 45,
+      "optimal": 55
+    },
+    "sales_evaluation_rate": {
+      "conservative": 55,
+      "realistic": 60,
+      "optimal": 70
+    },
+    "deal_close_rate": {
+      "conservative": 25,
+      "realistic": 30,
+      "optimal": 35
+    },
+    "deals_closed_h1": {
+      "conservative": 2,
+      "realistic": 4,
+      "optimal": 7
+    },
+    "linkedin_ctr": {
+      "conservative": 0.3,
+      "realistic": 0.5,
+      "optimal": 0.6
+    },
+    "landing_page_cvr": {
+      "conservative": 15,
+      "realistic": 20,
+      "optimal": 25
+    }
   }
 }

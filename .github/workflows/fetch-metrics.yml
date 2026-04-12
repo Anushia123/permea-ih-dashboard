@@ -75,15 +75,16 @@ jobs:
         if: ${{ github.event.inputs.force_sample_data != 'true' }}
         env:
           POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
-          POSTHOG_PROJECT_ID: ${{ secrets.POSTHOG_PROJECT_ID }}
-          POSTHOG_EVENT_ACCOUNT_CREATED: ${{ secrets.POSTHOG_EVENT_ACCOUNT_CREATED }}
-          POSTHOG_EVENT_WIDGET_CLICK: ${{ secrets.POSTHOG_EVENT_WIDGET_CLICK }}
-          POSTHOG_EVENT_SEGMENT_SUBMIT: ${{ secrets.POSTHOG_EVENT_SEGMENT_SUBMIT }}
-          POSTHOG_EVENT_CTA_CLICK: ${{ secrets.POSTHOG_EVENT_CTA_CLICK }}
+          POSTHOG_PROJECT_ID: "9143"
           POSTHOG_DAYS_LOOKBACK: "90"
         run: |
-          python scripts/fetch_posthog.py > /tmp/ih_dash/posthog.json
-          echo "✓ PostHog done"
+          if [ -z "$POSTHOG_API_KEY" ]; then
+            echo "✗ POSTHOG_API_KEY secret is empty or not set — skipping PostHog fetch"
+          else
+            echo "✓ POSTHOG_API_KEY is set (${#POSTHOG_API_KEY} chars)"
+            python scripts/fetch_posthog.py > /tmp/ih_dash/posthog.json
+            python3 -c "import json; d=json.load(open('/tmp/ih_dash/posthog.json')); print(f'  signups={d.get(\"verified_signups\",0)}, activated={d.get(\"activated_users\",0)}, market_defs={d.get(\"segment_submissions\",0)}')"
+          fi
         continue-on-error: true
 
       # ── 7. FETCH LEMLIST

@@ -4,23 +4,28 @@ Fetch Lemlist campaign sequence stats for the Insight Hub dashboard.
 Requires env var: LEMLIST_API_KEY (from Lemlist Settings → Integrations → API)
 Optional env var: LEMLIST_CAMPAIGN_NAME (filter campaigns by name, default: "Permea IH Free Trial Campaign")
 
-Auth: HTTP Basic Auth — empty username, API key as password.
-API:  https://api.lemlist.com/api  (v1)
+Auth:  HTTP Basic Auth — empty username, API key as password
+Stats: GET /api/v2/campaigns/{id}/stats?startDate=...&endDate=...
+       (v1 campaign endpoints return metadata only — no stats)
 
-Confirmed from first live run (2026-04-12):
-  GET /api/campaigns/{id} returns only metadata — no stats
-  Stats are at: GET /api/campaigns/{id}/export/leads-stats (one row per lead)
-  OR stats are embedded in the /api/campaigns list response
+Confirmed response fields (from developer.lemlist.com):
+  messagesSent, messagesNotSent, messagesBounced, delivered,
+  opened, clicked, replied, nbLeadsUnsubscribed
 """
 
 import os
 import json
 import sys
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 API_BASE        = "https://api.lemlist.com/api"
 CAMPAIGN_FILTER = os.environ.get("LEMLIST_CAMPAIGN_NAME", "Permea IH Free Trial Campaign")
+
+# Campaign window — match the PostHog lookback window
+DAYS_LOOKBACK = int(os.environ.get("LEMLIST_DAYS_LOOKBACK", "90"))
+DATE_FROM = (datetime.now(timezone.utc) - timedelta(days=DAYS_LOOKBACK)).strftime("%Y-%m-%dT00:00:00.000Z")
+DATE_TO   = datetime.now(timezone.utc).strftime("%Y-%m-%dT23:59:59.999Z")
 
 api_key = os.environ.get("LEMLIST_API_KEY")
 if not api_key:
@@ -38,85 +43,42 @@ def get(path, params=None):
     return resp.json()
 
 
-def extract_stat(obj, *keys):
-    """Try multiple candidate key names, return first non-None as int."""
-    for key in keys:
-        val = obj.get(key)
-        if val is not None:
-            try:
-                return int(val)
-            except (ValueError, TypeError):
-                pass
-    return 0
-
-
 def get_campaign_stats(campaign_id, campaign_name):
     """
-    Try multiple Lemlist endpoints to get campaign stats.
-    Returns dict with sent/opened/clicked/replied/bounced/unsubscribed.
+    Fetch stats for one campaign using the v2 stats endpoint.
+    Returns dict with the fields build_metrics.py expects.
     """
-    zero = {"sent": 0, "opened": 0, "clicked": 0, "replied": 0, "bounced": 0, "unsubscribed": 0}
-
-    # Attempt 1: dedicated stats endpoint
-    for stats_path in [
-        f"/campaigns/{campaign_id}/stats",
-        f"/campaigns/{campaign_id}/statistics",
-    ]:
-        try:
-            data = get(stats_path)
-            print(f"  DEBUG {stats_path} keys: {list(data.keys()) if isinstance(data, dict) else type(data).__name__}", file=sys.stderr)
-            s = data.get("statistic", data) if isinstance(data, dict) else {}
-            sent = extract_stat(s,
-                "sendCount", "emailsSent", "sent",
-                "contactedCount", "totalSent", "messagesCount",
-            )
-            if sent > 0:
-                print(f"  ✓ Stats from {stats_path}", file=sys.stderr)
-                return {
-                    "sent":         sent,
-                    "opened":       extract_stat(s, "openCount",        "emailsOpened",       "opened",       "openedCount"),
-                    "clicked":      extract_stat(s, "clickCount",        "emailsClicked",      "clicked",      "clickedCount"),
-                    "replied":      extract_stat(s, "replyCount",        "emailsReplied",      "replied",      "repliedCount"),
-                    "bounced":      extract_stat(s, "bounceCount",       "emailsBounced",      "bounced",      "bouncedCount"),
-                    "unsubscribed": extract_stat(s, "unsubscribeCount",  "emailsUnsubscribed", "unsubscribed", "unsubscribedCount"),
-                }
-        except requests.HTTPError as e:
-            print(f"  ! {stats_path} → {e.response.status_code}", file=sys.stderr)
-        except Exception as e:
-            print(f"  ! {stats_path} → {e}", file=sys.stderr)
-
-    # Attempt 2: individual campaign endpoint — check sendDetails
     try:
-        data = get(f"/campaigns/{campaign_id}")
-        send_details = data.get("sendDetails", {})
-        if send_details:
-            print(f"  DEBUG sendDetails keys: {list(send_details.keys())}", file=sys.stderr)
-            sent = extract_stat(send_details,
-                "sendCount", "emailsSent", "sent", "totalSent",
-                "contactedCount", "messagesCount",
-            )
-            if sent > 0:
-                print(f"  ✓ Stats from sendDetails", file=sys.stderr)
-                return {
-                    "sent":         sent,
-                    "opened":       extract_stat(send_details, "openCount",       "emailsOpened",       "opened"),
-                    "clicked":      extract_stat(send_details, "clickCount",       "emailsClicked",      "clicked"),
-                    "replied":      extract_stat(send_details, "replyCount",       "emailsReplied",      "replied"),
-                    "bounced":      extract_stat(send_details, "bounceCount",      "emailsBounced",      "bounced"),
-                    "unsubscribed": extract_stat(send_details, "unsubscribeCount", "emailsUnsubscribed", "unsubscribed"),
-                }
-    except Exception as e:
-        print(f"  ! sendDetails lookup failed: {e}", file=sys.stderr)
+        data = get(f"/v2/campaigns/{campaign_id}/stats", params={
+            "startDate": DATE_FROM,
+            "endDate":   DATE_TO,
+        })
+        stats = {
+            "sent":         int(data.get("messagesSent",        0)),
+            "opened":       int(data.get("opened",              0)),
+            "clicked":      int(data.get("clicked",             0)),
+            "replied":      int(data.get("replied",             0)),
+            "bounced":      int(data.get("messagesBounced",     0)),
+            "unsubscribed": int(data.get("nbLeadsUnsubscribed", 0)),
+        }
+        print(f"  ✓ '{campaign_name}': sent={stats['sent']}, opened={stats['opened']}, "
+              f"clicked={stats['clicked']}, replied={stats['replied']}", file=sys.stderr)
+        return stats
 
-    print(f"  ! Could not find stats for '{campaign_name}' — all endpoints returned zeros", file=sys.stderr)
-    return zero
+    except requests.HTTPError as e:
+        print(f"  ✗ HTTP {e.response.status_code} for '{campaign_name}': {e}", file=sys.stderr)
+    except Exception as e:
+        print(f"  ✗ Error fetching stats for '{campaign_name}': {e}", file=sys.stderr)
+
+    return {"sent": 0, "opened": 0, "clicked": 0, "replied": 0, "bounced": 0, "unsubscribed": 0}
 
 
 def main():
     print("→ Fetching Lemlist metrics…", file=sys.stderr)
     print(f"  Campaign filter: '{CAMPAIGN_FILTER}'", file=sys.stderr)
+    print(f"  Date range: {DATE_FROM[:10]} → {DATE_TO[:10]}", file=sys.stderr)
 
-    # ── Step 1: list all campaigns
+    # ── Step 1: list all campaigns (v1 list endpoint is fine for names/IDs)
     try:
         campaigns = get("/campaigns")
     except Exception as e:
@@ -139,11 +101,8 @@ def main():
     if not ih_campaigns:
         print(f"  ! No campaigns matching '{CAMPAIGN_FILTER}'", file=sys.stderr)
         print(f"  ! Available: {all_names}", file=sys.stderr)
-
-    # Check if the list response itself has stat fields on the first IH campaign
-    if ih_campaigns:
-        sample = ih_campaigns[0]
-        print(f"  DEBUG campaign list object keys: {list(sample.keys())}", file=sys.stderr)
+    else:
+        print(f"  ✓ Matched {len(ih_campaigns)} campaigns: {[c.get('name') for c in ih_campaigns]}", file=sys.stderr)
 
     totals = {
         "source":       "lemlist",
@@ -157,29 +116,11 @@ def main():
         "campaigns":    [],
     }
 
-    # ── Step 2: fetch stats for each matching campaign
+    # ── Step 2: fetch v2 stats for each matching campaign
     for c in ih_campaigns:
-        cid  = c.get("_id")
-        name = c.get("name", cid)
-
-        # First check if stats are already in the list response
-        sent_from_list = extract_stat(c,
-            "sendCount", "emailsSent", "sent", "contactedCount",
-            "totalSent", "messagesCount",
-        )
-
-        if sent_from_list > 0:
-            print(f"  ✓ Stats from campaign list for '{name}'", file=sys.stderr)
-            stats = {
-                "sent":         sent_from_list,
-                "opened":       extract_stat(c, "openCount",       "emailsOpened",       "opened"),
-                "clicked":      extract_stat(c, "clickCount",       "emailsClicked",      "clicked"),
-                "replied":      extract_stat(c, "replyCount",       "emailsReplied",      "replied"),
-                "bounced":      extract_stat(c, "bounceCount",      "emailsBounced",      "bounced"),
-                "unsubscribed": extract_stat(c, "unsubscribeCount", "emailsUnsubscribed", "unsubscribed"),
-            }
-        else:
-            stats = get_campaign_stats(cid, name)
+        cid   = c.get("_id")
+        name  = c.get("name", cid)
+        stats = get_campaign_stats(cid, name)
 
         totals["sent"]         += stats["sent"]
         totals["opened"]       += stats["opened"]
@@ -195,17 +136,13 @@ def main():
             "ctr":        round((stats["clicked"] / max(stats["opened"], 1)) * 100, 1),
             "reply_rate": round((stats["replied"] / max(stats["sent"],   1)) * 100, 1),
         })
-        print(f"  ✓ '{name}': sent={stats['sent']}, opened={stats['opened']}, clicked={stats['clicked']}, replied={stats['replied']}", file=sys.stderr)
 
     # ── Step 3: compute aggregate rates
-    total_sent   = totals["sent"]   or 1
-    total_opened = totals["opened"] or 1
-
-    totals["open_rate"]  = round((totals["opened"]  / total_sent)   * 100, 1)
-    totals["ctr"]        = round((totals["clicked"] / total_opened) * 100, 1)
-    totals["reply_rate"] = round((totals["replied"] / total_sent)   * 100, 1)
-
-    if totals["sent"] == 0:
+    if totals["sent"] > 0:
+        totals["open_rate"]  = round((totals["opened"]  / totals["sent"])            * 100, 1)
+        totals["ctr"]        = round((totals["clicked"] / max(totals["opened"], 1))  * 100, 1)
+        totals["reply_rate"] = round((totals["replied"] / totals["sent"])            * 100, 1)
+    else:
         totals["open_rate"] = totals["ctr"] = totals["reply_rate"] = 0
 
     print(f"  ✓ Totals: sent={totals['sent']}, open_rate={totals['open_rate']}%, "

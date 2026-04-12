@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-12T20:37:18.333423+00:00",
+    "last_updated": "2026-04-12T20:47:52.359589+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-12",
@@ -11,7 +11,7 @@
     "activation_rate": 100.0,
     "segment_submissions": 3,
     "deals_in_pipeline": 0,
-    "overall_health": "yellow"
+    "overall_health": "red"
   },
   "gate1": {
     "name": "Messaging & Reach",

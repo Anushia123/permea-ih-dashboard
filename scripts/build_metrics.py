@@ -41,8 +41,16 @@ def load_source(name):
     if not path.exists():
         print(f"  ! {name}.json not found — using empty data", file=sys.stderr)
         return {}
-    with open(path) as f:
-        return json.load(f)
+    try:
+        with open(path) as f:
+            content = f.read().strip()
+        if not content:
+            print(f"  ! {name}.json is empty — using empty data", file=sys.stderr)
+            return {}
+        return json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"  ! {name}.json is invalid JSON ({e}) — using empty data", file=sys.stderr)
+        return {}
 
 
 def determine_health(metrics):
@@ -182,10 +190,11 @@ def build():
             "verified_signups":        verified_signups,
             "signup_conversion_rate":  posthog.get("signup_conversion_rate", None),
             "signups_by_source": {
-                "lemlist_email":  None,
-                "hubspot_email":  None,
-                "linkedin_paid":  None,
-                "organic":        None,
+                "customer_io":       posthog.get("signups_by_utm_source", {}).get("customer_io") or None,
+                "lemlist":           posthog.get("signups_by_utm_source", {}).get("lemlist") or None,
+                "hubspot":           posthog.get("signups_by_utm_source", {}).get("hubspot") or None,
+                "linkedin":          posthog.get("signups_by_utm_source", {}).get("linkedin") or None,
+                "temedica_website":  posthog.get("signups_by_utm_source", {}).get("temedica_website") or None,
             },
         },
         "gate3": {

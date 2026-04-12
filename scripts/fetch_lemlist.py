@@ -25,7 +25,7 @@ import requests
 from datetime import datetime, timezone
 
 API_BASE        = "https://api.lemlist.com/api"
-CAMPAIGN_FILTER = os.environ.get("LEMLIST_CAMPAIGN_NAME", "Insight Hub")
+CAMPAIGN_FILTER = os.environ.get("LEMLIST_CAMPAIGN_NAME", "Permea IH Free Trial Campaign")
 
 api_key = os.environ.get("LEMLIST_API_KEY")
 if not api_key:

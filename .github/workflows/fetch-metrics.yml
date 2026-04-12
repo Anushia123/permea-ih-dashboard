@@ -92,7 +92,7 @@ jobs:
         if: ${{ github.event.inputs.force_sample_data != 'true' }}
         env:
           LEMLIST_API_KEY: ${{ secrets.LEMLIST_API_KEY }}
-          LEMLIST_CAMPAIGN_NAME: "Insight Hub"
+          LEMLIST_CAMPAIGN_NAME: "Permea IH Free Trial Campaign"
         run: |
           if [ -z "$LEMLIST_API_KEY" ]; then
             echo "✗ LEMLIST_API_KEY secret is empty or not set — skipping"

@@ -94,8 +94,13 @@ jobs:
           LEMLIST_API_KEY: ${{ secrets.LEMLIST_API_KEY }}
           LEMLIST_CAMPAIGN_NAME: "Insight Hub"
         run: |
-          python scripts/fetch_lemlist.py > /tmp/ih_dash/lemlist.json
-          echo "✓ Lemlist done"
+          if [ -z "$LEMLIST_API_KEY" ]; then
+            echo "✗ LEMLIST_API_KEY secret is empty or not set — skipping"
+          else
+            echo "✓ LEMLIST_API_KEY is set (${#LEMLIST_API_KEY} chars)"
+            python scripts/fetch_lemlist.py > /tmp/ih_dash/lemlist.json
+            python3 -c "import json; d=json.load(open('/tmp/ih_dash/lemlist.json')); print(f'  sent={d.get(\"sent\",0)}, open_rate={d.get(\"open_rate\",0)}%')"
+          fi
         continue-on-error: true
 
       # ── 8. BUILD metrics.json (or use sample data)

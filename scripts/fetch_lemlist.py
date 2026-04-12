@@ -14,8 +14,13 @@ from datetime import datetime, timezone
 API_BASE = "https://api.lemlist.com/api"
 CAMPAIGN_FILTER = os.environ.get("LEMLIST_CAMPAIGN_NAME", "Insight Hub")
 
+api_key = os.environ.get("LEMLIST_API_KEY")
+if not api_key:
+    print("✗ LEMLIST_API_KEY environment variable is not set", file=sys.stderr)
+    sys.exit(1)
+
 # Lemlist uses HTTP Basic Auth with the API key as the password
-AUTH = ("", os.environ["LEMLIST_API_KEY"])
+AUTH = ("", api_key)
 
 
 def fetch_campaigns():

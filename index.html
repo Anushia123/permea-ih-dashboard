@@ -64,7 +64,7 @@
   .sample-badge { background: rgba(245,197,66,0.15); color: var(--yellow); border: 1px solid rgba(245,197,66,0.3); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px; letter-spacing: 0.04em; }
 
   /* ── SUMMARY BAR ── */
-  .summary-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--navy-border); border-bottom: 1px solid var(--navy-border); }
+  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--navy-border); border-bottom: 1px solid var(--navy-border); }
   .summary-item { background: var(--navy-mid); padding: 18px 24px; text-align: center; }
   .summary-item .val { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
   .summary-item .label { font-size: 11px; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -232,9 +232,10 @@
 </header>
 
 <div class="summary-bar">
-  <div class="summary-item"><div class="val" id="sum-signups">—</div><div class="label">Verified Sign-Ups</div><div class="sub">Total campaign to date</div></div>
-  <div class="summary-item"><div class="val" id="sum-activation">—</div><div class="label">Activation Rate</div><div class="sub">≥1 widget click in 7 days</div></div>
-  <div class="summary-item"><div class="val" id="sum-segments">—</div><div class="label">Market Definitions</div><div class="sub">Market definition submissions</div></div>
+  <div class="summary-item"><div class="val" id="sum-sent">—</div><div class="label">Total Sent</div><div class="sub">Lemlist + HubSpot</div></div>
+  <div class="summary-item"><div class="val" id="sum-signups">—</div><div class="label">Email Open Rate</div><div class="sub">Lemlist bulk outreach</div></div>
+  <div class="summary-item"><div class="val" id="sum-activation">—</div><div class="label">Verified Sign-Ups</div><div class="sub">Total campaign to date</div></div>
+  <div class="summary-item"><div class="val" id="sum-segments">—</div><div class="label">Market Def. Rate</div><div class="sub">Of activated users</div></div>
   <div class="summary-item"><div class="val" id="sum-deals">—</div><div class="label">Deals in Pipeline</div><div class="sub">H1 target: 5–7</div></div>
 </div>
 
@@ -355,8 +356,7 @@ function fmtDateTime(iso) {
 const TOOLTIPS = {
   lemlist_open_rate:   'Of all Tier 2 bulk emails sent via Lemlist, what % were opened. Shows if subject lines and sender names are cutting through.',
   lemlist_ctr:         'Of the Lemlist emails that were opened, what % had a link clicked. Formula: clicks ÷ opens. Shows if the email body and CTA are compelling.',
-  hs_open_rate:        'Of all warm outreach emails sent via HubSpot sequence (from Ludger, Dennis, Max), what % were opened.',
-  hs_ctr:              'Of the HubSpot sequence emails that were opened, what % had a link clicked. Formula: clicks ÷ opens.',
+  hs_enrolled:         'Total contacts enrolled in the HubSpot warm outreach sequence by Ludger, Dennis, and Max.',
   lp_cvr:              'Of everyone who landed on the Permea landing page, what % clicked through to the sign-up page. Target: >15%.',
   lp_visits:           'Total sessions on the Permea landing page — from ads, emails, organic. This is the top of the funnel.',
   signup_visits:       'Number of people who reached the actual sign-up page inside the product. Comes from landing page CVR.',
@@ -561,10 +561,11 @@ function renderDashboard(d) {
     new Date(d.meta.period_start).toLocaleDateString('en-GB', {day:'2-digit', month:'short'}) + ' – ' +
     new Date(d.meta.period_end).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
 
-  // Summary
-  document.getElementById('sum-signups').textContent    = eff('verified_signups', d.gate2.verified_signups) ?? '—';
-  document.getElementById('sum-activation').textContent = fmt(eff('activation_rate', d.gate3.activation_rate_7day), '%');
-  document.getElementById('sum-segments').textContent   = eff('total_segments', d.gate4.segment_submissions) ?? '—';
+  // Summary — 5-card mini-funnel: Sent → Open Rate → Sign-Ups → Market Def Rate → Deals
+  document.getElementById('sum-sent').textContent       = (d.gate1.channels.lemlist.emails_sent||0) + (d.gate1.channels.hubspot.emails_sent||0);
+  document.getElementById('sum-signups').textContent    = fmt(eff('lemlist_open_rate', d.gate1.channels.lemlist.open_rate), '%');
+  document.getElementById('sum-activation').textContent = eff('verified_signups', d.gate2.verified_signups) ?? '—';
+  document.getElementById('sum-segments').textContent   = fmt(eff('sub_from_activation', d.gate4.submission_rate_from_activation), '%');
   document.getElementById('sum-deals').textContent      = (eff('deals_created', d.gate5.deals_created) ?? '—') + ' / 5+';
 
   // Dynamic overall health (Gap 11)
@@ -607,12 +608,10 @@ function renderDashboard(d) {
   const lp = d.gate1.landing_page || {};
 
   document.getElementById('g1-metrics').innerHTML = [
-    metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate', apiValue:lm.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
-    metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)', apiValue:lm.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
-    metricCard({ id:'hs_open_rate',      label:'HubSpot Open Rate', apiValue:hs.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.hs_open_rate }),
-    metricCard({ id:'hs_ctr',            label:'HubSpot CTR (of opens)', apiValue:hs.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.hs_ctr }),
-    metricCard({ id:'lp_visits',         label:'Landing Page Visits', apiValue:lp.total_visits, suffix:'', neutral:true, tooltip:TOOLTIPS.lp_visits }),
-    metricCard({ id:'lp_cvr',            label:'Landing Page CVR', apiValue:lp.cvr_to_signup_page, suffix:'%', benchmarkKey:'landing_page_cvr', benchmarks:bm, tooltip:TOOLTIPS.lp_cvr }),
+    metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate',       apiValue:lm.open_rate,    suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
+    metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)',  apiValue:lm.ctr,          suffix:'%', benchmarkKey:'email_ctr',        benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
+    metricCard({ id:'hs_enrolled',       label:'HubSpot Enrolled',        apiValue:hs.enrolled,     suffix:'',  neutral:true,                                   tooltip:TOOLTIPS.hs_enrolled }),
+    metricCard({ id:'lp_visits',         label:'Landing Page Visits',     apiValue:lp.total_visits, suffix:'',  neutral:true, extraInfo: lp.total_visits == null ? 'Pending first data' : '', tooltip:TOOLTIPS.lp_visits }),
   ].join('');
 
   document.getElementById('g1-email-table').innerHTML = [
@@ -625,10 +624,11 @@ function renderDashboard(d) {
 
   // ── GATE 2
   const g2 = d.gate2;
+  // TODO: remove verified_signups card once sign-up page tracking is live (PostHog) — it will be redundant with the funnel
   document.getElementById('g2-metrics').innerHTML = [
-    metricCard({ id:'signup_visits',   label:'Sign-Up Page Visits', apiValue:g2.signup_page_visits, neutral:true, tooltip:TOOLTIPS.signup_visits }),
-    metricCard({ id:'verified_signups', label:'Verified Sign-Ups', apiValue:g2.verified_signups, neutral:true, tooltip:TOOLTIPS.verified_signups }),
-    metricCard({ id:'signup_cvr',      label:'Sign-Up Conversion Rate', apiValue:g2.signup_conversion_rate, suffix:'%', benchmarkKey:'account_creation_rate', benchmarks:bm, tooltip:TOOLTIPS.signup_cvr }),
+    metricCard({ id:'signup_visits',   label:'Sign-Up Page Visits',     apiValue:g2.signup_page_visits,       neutral:true, tooltip:TOOLTIPS.signup_visits }),
+    metricCard({ id:'verified_signups', label:'Verified Sign-Ups',      apiValue:g2.verified_signups,         neutral:true, tooltip:TOOLTIPS.verified_signups }),
+    metricCard({ id:'signup_cvr',      label:'Sign-Up Conversion Rate', apiValue:g2.signup_conversion_rate,   suffix:'%', benchmarkKey:'account_creation_rate', benchmarks:bm, tooltip:TOOLTIPS.signup_cvr }),
   ].join('');
 
   const totalSU = eff('verified_signups', g2.verified_signups) || 1;
@@ -643,8 +643,7 @@ function renderDashboard(d) {
   // ── GATE 3
   const g3 = d.gate3;
   document.getElementById('g3-metrics').innerHTML = [
-    metricCard({ id:'activation_rate', label:'Activation Rate (7-day)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, tooltip:TOOLTIPS.activation_rate }),
-    metricCard({ id:'activated_users', label:'Activated Users', apiValue:g3.activated_users, neutral:true, extraInfo:`of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.activated_users }),
+    metricCard({ id:'activation_rate', label:'Activation Rate (7-day)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, extraInfo:`${g3.activated_users ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.activation_rate }),
   ].join('');
 
   if (retentionChartInst) retentionChartInst.destroy();
@@ -661,9 +660,8 @@ function renderDashboard(d) {
   const g4 = d.gate4;
   // Gap 4: submission from_signup = neutral (no benchmark); from_activation = uses segment_submission_rate benchmark
   document.getElementById('g4-metrics').innerHTML = [
-    metricCard({ id:'sub_from_signup',     label:'Market Def. Rate (from sign-up)', apiValue:g4.submission_rate_from_signup,    suffix:'%', neutral:true, extraInfo:`${g4.segment_submissions ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.sub_from_signup }),
+    metricCard({ id:'sub_from_signup',     label:'Market Def. Rate (from sign-up)',    apiValue:g4.submission_rate_from_signup,    suffix:'%', neutral:true,                                      extraInfo:`${g4.segment_submissions ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.sub_from_signup }),
     metricCard({ id:'sub_from_activation', label:'Market Def. Rate (from activation)', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
-    metricCard({ id:'total_segments',      label:'Market Definitions Submitted', apiValue:g4.segment_submissions, neutral:true, tooltip:TOOLTIPS.total_segments }),
   ].join('');
 
   // Gate 4 — PTA nurture emails
@@ -675,10 +673,9 @@ function renderDashboard(d) {
   // ── GATE 5
   const g5 = d.gate5;
   document.getElementById('g5-metrics').innerHTML = [
-    metricCard({ id:'cta_clicks',    label:'In-App CTA Clicks', apiValue:g5.cta_clicks_inapp, neutral:true, extraInfo:'Talk to expert / Book call', tooltip:TOOLTIPS.cta_clicks }),
-    metricCard({ id:'commercial_touch', label:'Commercial Touch Rate', apiValue:g5.commercial_touch_rate, suffix:'%', neutral:true, extraInfo:'Of segment submitters', tooltip:TOOLTIPS.commercial_touch }),
-    metricCard({ id:'deals_created', label:'Deals in Pipeline', apiValue:g5.deals_created, neutral:true, tooltip:TOOLTIPS.deals_created }),
-    metricCard({ id:'deals_closed',  label:'Deals Closed H1', apiValue:g5.deals_closed_h1, neutral:true, extraInfo:`Target: ${g5.h1_goal}+`, tooltip:TOOLTIPS.deals_closed }),
+    metricCard({ id:'cta_clicks',       label:'In-App CTA Clicks',      apiValue:g5.cta_clicks_inapp,      neutral:true, extraInfo:'Talk to expert / Book call', tooltip:TOOLTIPS.cta_clicks }),
+    metricCard({ id:'commercial_touch', label:'Commercial Touch Rate',   apiValue:g5.commercial_touch_rate, suffix:'%', neutral:true, extraInfo:'Of segment submitters', tooltip:TOOLTIPS.commercial_touch }),
+    metricCard({ id:'deals_closed',     label:'Deals Closed H1',         apiValue:g5.deals_closed_h1,       neutral:true, extraInfo:`Target: ${g5.h1_goal}+`, tooltip:TOOLTIPS.deals_closed }),
   ].join('');
 
   // Gate 5 — CIO nurture emails (Core Journey + Urgency)

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-13T08:52:23.059894+00:00",
+    "last_updated": "2026-04-13T09:17:53.126384+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-13",
@@ -19,9 +19,9 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 86,
-        "emails_opened": 29,
-        "open_rate": 33.7,
+        "emails_sent": 91,
+        "emails_opened": 30,
+        "open_rate": 33.0,
         "clicks": 0,
         "ctr": 0.0,
         "replies": 0,
@@ -90,7 +90,17 @@
     "activated_users": 3,
     "segment_submissions": 3,
     "submission_rate_from_signup": 100.0,
-    "submission_rate_from_activation": 100.0
+    "submission_rate_from_activation": 100.0,
+    "cio_nurture": {
+      "name": "Permea Insight Hub Free Access - PTA",
+      "sent": 0,
+      "opened": 0,
+      "clicked": 0,
+      "bounced": 0,
+      "unsubscribed": 0,
+      "open_rate": 0.0,
+      "ctr": 0.0
+    }
   },
   "gate5": {
     "name": "Commercial Conversion",
@@ -103,7 +113,20 @@
     "deals_created": 0,
     "deals_closed_h1": 0,
     "deals_by_stage": {},
-    "h1_goal": 5
+    "h1_goal": 5,
+    "cio_nurture": {
+      "core_journey": {
+        "name": "Permea Insight Hub Free Access - Core Journey",
+        "sent": 0,
+        "opened": 0,
+        "clicked": 0,
+        "bounced": 0,
+        "unsubscribed": 0,
+        "open_rate": 0.0,
+        "ctr": 0.0
+      },
+      "urgency_journey": null
+    }
   },
   "benchmarks": {
     "email_open_rate": {

@@ -35,6 +35,15 @@ HEADERS = {
 
 CAMPAIGN_IDENTIFIER = os.environ.get("CIO_CAMPAIGN_NAME", "Insight Hub")
 
+# Email action IDs per campaign — extracted from CIO Fly API (MCP query 2026-04-13).
+# Only email-type actions; delays, branches, in-app excluded.
+# Update if new email actions are added to a journey.
+CAMPAIGN_EMAIL_ACTIONS = {
+    "pta":          [638, 644, 645, 649, 650, 655, 656, 693],
+    "core_journey": [665, 666, 670, 673, 677, 679, 686, 690, 691, 729],
+    "urgency_journey": [],  # populate once urgency journey has email actions
+}
+
 
 def to_int(val):
     """Normalise CIO metric values — may be a scalar or a time-series list."""
@@ -64,13 +73,6 @@ def fetch_all_campaigns():
     return resp.json().get("campaigns", [])
 
 
-def fetch_campaign_details(campaign_id):
-    """Fetch full campaign object including actions list."""
-    resp = requests.get(f"{API_BASE}/campaigns/{campaign_id}", headers=HEADERS, timeout=30)
-    resp.raise_for_status()
-    return resp.json()
-
-
 def fetch_action_metrics(campaign_id, action_id):
     """Fetch email delivery metrics for a single campaign action."""
     resp = requests.get(
@@ -82,7 +84,7 @@ def fetch_action_metrics(campaign_id, action_id):
     return resp.json()
 
 
-def get_campaign_email_metrics(campaign):
+def get_campaign_email_metrics(campaign, ctype):
     """
     Sum email metrics across all email actions in a campaign.
     Returns a dict, or None if the campaign has no email actions or all calls fail.
@@ -91,19 +93,16 @@ def get_campaign_email_metrics(campaign):
     name = campaign.get("name", f"Campaign {cid}")
 
     try:
-        details       = fetch_campaign_details(cid)
-        email_actions = [a for a in details.get("actions", []) if a.get("Type") == "Email"]
-
-        if not email_actions:
-            print(f"  ! CIO: no email actions in '{name}'", file=sys.stderr)
+        action_ids = CAMPAIGN_EMAIL_ACTIONS.get(ctype, [])
+        if not action_ids:
+            print(f"  ! CIO: no email action IDs configured for '{name}' ({ctype})", file=sys.stderr)
             return None
 
-        print(f"  ✓ CIO: '{name}' — {len(email_actions)} email actions", file=sys.stderr)
+        print(f"  ✓ CIO: '{name}' — {len(action_ids)} email actions", file=sys.stderr)
 
         totals = {"sent": 0, "opened": 0, "clicked": 0, "bounced": 0, "unsubscribed": 0}
 
-        for action in email_actions:
-            aid = action["ID"]
+        for aid in action_ids:
             try:
                 data = fetch_action_metrics(cid, aid)
                 m    = data.get("metric", {})
@@ -152,7 +151,7 @@ def main():
     for campaign in ih_campaigns:
         ctype = classify_campaign(campaign.get("name", ""))
         if ctype:
-            campaigns_by_type[ctype] = get_campaign_email_metrics(campaign)
+            campaigns_by_type[ctype] = get_campaign_email_metrics(campaign, ctype)
         else:
             print(f"  ! CIO: unclassified campaign '{campaign.get('name')}' — skipping", file=sys.stderr)
 

@@ -72,24 +72,37 @@ def get_campaign_email_metrics(campaign):
     name = campaign.get("name", f"Campaign {cid}")
     try:
         data = fetch_campaign_metrics(cid)
-        m    = data.get("metric", {})
-        delivered  = m.get("delivered",    0)
-        bounced    = m.get("bounced",      0)
+
+        # Log raw response shape for debugging
+        print(f"  ! CIO raw keys for '{name}': {list(data.keys())}", file=sys.stderr)
+        print(f"  ! CIO raw data: {json.dumps(data)[:600]}", file=sys.stderr)
+
+        m = data.get("metric", {})
+
+        # CIO metrics API may return arrays (time series) or scalars.
+        # Normalise both cases by summing lists.
+        def to_int(val):
+            if isinstance(val, list):
+                return sum(v for v in val if isinstance(v, (int, float)))
+            return int(val) if val else 0
+
+        delivered  = to_int(m.get("delivered",    0))
+        bounced    = to_int(m.get("bounced",       0))
         sent       = delivered + bounced
-        opened     = m.get("opened",       0)
-        clicked    = m.get("clicked",      0)
+        opened     = to_int(m.get("opened",        0))
+        clicked    = to_int(m.get("clicked",       0))
         open_rate  = round((opened  / max(sent,   1)) * 100, 1)
         ctr        = round((clicked / max(opened, 1)) * 100, 1)
         print(f"  ✓ CIO: '{name}' — sent={sent}, open={open_rate}%, ctr={ctr}%", file=sys.stderr)
         return {
-            "name":        name,
-            "sent":        sent,
-            "opened":      opened,
-            "clicked":     clicked,
-            "bounced":     bounced,
-            "unsubscribed":m.get("unsubscribed", 0),
-            "open_rate":   open_rate,
-            "ctr":         ctr,
+            "name":         name,
+            "sent":         sent,
+            "opened":       opened,
+            "clicked":      clicked,
+            "bounced":      bounced,
+            "unsubscribed": to_int(m.get("unsubscribed", 0)),
+            "open_rate":    open_rate,
+            "ctr":          ctr,
         }
     except Exception as e:
         print(f"  ✗ CIO: could not fetch '{name}' (id={cid}): {e}", file=sys.stderr)

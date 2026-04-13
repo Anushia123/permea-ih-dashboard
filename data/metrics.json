@@ -30,8 +30,8 @@
       },
       "hubspot": {
         "label": "HubSpot Sequence (Warm Outreach)",
-        "enrolled": 157,
-        "emails_sent": 157,
+        "enrolled": 111,
+        "emails_sent": 111,
         "emails_opened": 0,
         "open_rate": 0.0,
         "clicks": 0,

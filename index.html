@@ -575,7 +575,7 @@ function renderDashboard(d) {
 
   // ── FUNNEL
   const funnelSteps = [
-    { label:'Reached',         num: eff('lp_visits',      d.gate1.landing_page?.total_visits),         cvr:null,                                                              gate:'gate1', ragK:null },
+    { label:'Reached',         num: (d.gate1.channels.lemlist.emails_sent || 0) + (d.gate1.channels.hubspot.emails_sent || 0), cvr:null,                                                              gate:'gate1', ragK:null },
     { label:'Sign-Up Page',    num: eff('signup_visits',  d.gate1.landing_page?.signup_page_visits),    cvr:fmt(eff('lp_cvr',  d.gate1.landing_page?.cvr_to_signup_page),'% CVR'), gate:'gate1', ragK:'lp_cvr', ragBm:bm.landing_page_cvr },
     { label:'Verified',        num: eff('verified_signups', d.gate2.verified_signups),                  cvr:fmt(eff('signup_cvr', d.gate2.signup_conversion_rate),'% CVR'),    gate:'gate2', ragK:'signup_cvr', ragBm:bm.account_creation_rate },
     { label:'Activated',       num: eff('activated_users', d.gate3.activated_users),                    cvr:fmt(eff('activation_rate', d.gate3.activation_rate_7day),'% of signups'), gate:'gate3', ragK:'activation_rate', ragBm:bm.activation_rate },

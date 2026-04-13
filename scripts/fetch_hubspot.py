@@ -216,22 +216,22 @@ def main():
         })
 
     # Contact list member count (sequence enrollment)
-    # Try API first; fall back to manual_overrides.json if list not found.
+    # Prefer manual_overrides.json — API returns list membership count which differs from
+    # actual sequence enrollments. Manual value (from HubSpot Sequences > Performance tab) is more accurate.
     overrides = load_manual_overrides()
     sequence_override = overrides.get("hubspot_sequence", {})
-    try:
-        count = fetch_list_member_count()
-        if count is not None:
+    manual_enrolled = sequence_override.get("enrolled")
+    if manual_enrolled is not None:
+        result["sequence_enrolled"] = manual_enrolled
+        print(f"  ✓ Sequence enrolled (manual override): {manual_enrolled}", file=sys.stderr)
+    else:
+        try:
+            count = fetch_list_member_count()
             result["sequence_enrolled"] = count
-            print(f"  ✓ Sequence enrolled (API): {count}", file=sys.stderr)
-        else:
-            fallback = sequence_override.get("enrolled")
-            result["sequence_enrolled"] = fallback
-            print(f"  ⚠ List not found via API — using manual override: enrolled={fallback}", file=sys.stderr)
-    except Exception as e:
-        fallback = sequence_override.get("enrolled")
-        result["sequence_enrolled"] = fallback
-        print(f"  ✗ List fetch error: {e} — using manual override: enrolled={fallback}", file=sys.stderr)
+            print(f"  ✓ Sequence enrolled (API fallback): {count}", file=sys.stderr)
+        except Exception as e:
+            result["sequence_enrolled"] = None
+            print(f"  ✗ Enrolled fetch error: {e}", file=sys.stderr)
 
     # Sequence stats (open rate, reply rate) — always from manual_overrides.json
     # HubSpot Sequences API has no statistics endpoints.

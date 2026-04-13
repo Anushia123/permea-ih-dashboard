@@ -22,7 +22,7 @@ OUTPUT_FILE = Path(__file__).parent.parent / "data" / "metrics.json"
 
 # Load benchmarks — these are fixed and come from the build doc
 BENCHMARKS = {
-    "email_open_rate":       {"conservative": 60, "realistic": 65, "optimal": 70},
+    "email_open_rate":       {"conservative": 25, "realistic": 30, "optimal": 35},
     "email_ctr":             {"conservative": 25, "realistic": 30, "optimal": 35},
     "account_creation_rate": {"conservative": 30, "realistic": 35, "optimal": 40},
     "activation_rate":       {"conservative": 60, "realistic": 65, "optimal": 75},
@@ -90,7 +90,7 @@ def build():
     lemlist = load_source("lemlist")
 
     # Convenience aliases
-    hs_email   = hubspot.get("email", {})
+    hs_seq     = hubspot.get("sequence_stats", {})
     li_data    = load_source("linkedin")  # optional — may not exist yet
 
     verified_signups  = posthog.get("verified_signups",  0)
@@ -147,14 +147,15 @@ def build():
                     "unsubscribed": lemlist.get("unsubscribed",0),
                 },
                 "hubspot": {
-                    "label":        "HubSpot Email (Tier 1 Personal)",
-                    "emails_sent":  hs_email.get("sent",       0),
-                    "emails_opened":hs_email.get("opened",     0),
-                    "open_rate":    hs_email.get("open_rate",  0),
-                    "clicks":       hs_email.get("clicked",    0),
-                    "ctr":          hs_email.get("ctr",        0),
-                    "replies":      0,
-                    "bounced":      0,
+                    "label":        "HubSpot Sequence (Warm Outreach)",
+                    "enrolled":     hubspot.get("sequence_enrolled"),
+                    "emails_sent":  hubspot.get("sequence_enrolled", 0),  # enrolled = reach proxy until weekly stats are updated
+                    "emails_opened":0,
+                    "open_rate":    hs_seq.get("open_rate",   0.0),
+                    "clicks":       0,
+                    "ctr":          0,
+                    "replies":      None,
+                    "bounced":      None,
                     "unsubscribed": 0,
                 },
                 "linkedin": {

@@ -16,9 +16,17 @@ import sys
 import requests
 from datetime import datetime, timezone
 
-API_BASE = "https://api.customer.io/v1"
+# EU region workspace — must use api-eu.customer.io, not api.customer.io
+# Using the wrong region causes 401 errors even with a valid key.
+API_BASE = "https://api-eu.customer.io/v1"
+
+api_key = os.environ.get("CIO_API_KEY")
+if not api_key:
+    print("✗ CIO_API_KEY not set — exiting", file=sys.stderr)
+    sys.exit(1)
+
 HEADERS = {
-    "Authorization": f"Bearer {os.environ['CIO_API_KEY']}",
+    "Authorization": f"Bearer {api_key}",
     "Content-Type": "application/json",
 }
 

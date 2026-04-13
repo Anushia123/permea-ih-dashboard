@@ -234,7 +234,7 @@
 <div class="summary-bar">
   <div class="summary-item"><div class="val" id="sum-signups">—</div><div class="label">Verified Sign-Ups</div><div class="sub">Total campaign to date</div></div>
   <div class="summary-item"><div class="val" id="sum-activation">—</div><div class="label">Activation Rate</div><div class="sub">≥1 widget click in 7 days</div></div>
-  <div class="summary-item"><div class="val" id="sum-segments">—</div><div class="label">Segment Submissions</div><div class="sub">Market monitor requests</div></div>
+  <div class="summary-item"><div class="val" id="sum-segments">—</div><div class="label">Market Definitions</div><div class="sub">Market definition submissions</div></div>
   <div class="summary-item"><div class="val" id="sum-deals">—</div><div class="label">Deals in Pipeline</div><div class="sub">H1 target: 5–7</div></div>
 </div>
 
@@ -249,14 +249,14 @@
       <button class="tab active" data-gate="gate1"><span class="tab-dot" id="dot-gate1"></span> Gate 1 — Messaging &amp; Reach</button>
       <button class="tab" data-gate="gate2"><span class="tab-dot" id="dot-gate2"></span> Gate 2 — Sign-Up</button>
       <button class="tab" data-gate="gate3"><span class="tab-dot" id="dot-gate3"></span> Gate 3 — Activation</button>
-      <button class="tab" data-gate="gate4"><span class="tab-dot" id="dot-gate4"></span> Gate 4 — Segment Submission</button>
+      <button class="tab" data-gate="gate4"><span class="tab-dot" id="dot-gate4"></span> Gate 4 — Market Definition</button>
       <button class="tab" data-gate="gate5"><span class="tab-dot" id="dot-gate5"></span> Gate 5 — Commercial</button>
     </div>
 
     <!-- GATE 1 -->
     <div class="gate-panel active" id="panel-gate1">
       <div class="gate-header"><div class="gate-title">Gate 1 — Messaging &amp; Reach</div><span class="gate-owner">Owner: Marketing</span></div>
-      <p class="gate-desc">Measures how effectively outreach is getting attention — email opens, ad clicks, landing page visits — before anyone signs up. Includes Lemlist (Tier 2 bulk) and HubSpot (Tier 1 personal) shown separately per Lisa's requirement.</p>
+      <p class="gate-desc">Email outreach, paid ads, and landing page performance — before anyone signs up.</p>
       <div class="metric-grid" id="g1-metrics"></div>
       <div class="section-title">Email Performance by Channel</div>
       <table class="data-table"><thead><tr><th>Channel</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th><th class="num">Replies</th><th class="num">Bounced</th><th>Status</th></tr></thead><tbody id="g1-email-table"></tbody></table>
@@ -267,16 +267,16 @@
     <!-- GATE 2 -->
     <div class="gate-panel" id="panel-gate2">
       <div class="gate-header"><div class="gate-title">Gate 2 — Sign-Up &amp; Account Creation</div><span class="gate-owner">Owner: Marketing + Product</span></div>
-      <p class="gate-desc">Measures whether people actually create and verify a demo account. Only email-verified sign-ups count as real funnel entries — unverified accounts may never log in.</p>
+      <p class="gate-desc">Verified sign-ups entering the funnel. Only email-verified accounts count.</p>
       <div class="metric-grid" id="g2-metrics"></div>
-      <div class="section-title">Sign-Ups by Source (UTM)</div>
+      <div class="section-title">Sign-Ups by Source</div>
       <table class="data-table"><thead><tr><th>Source</th><th class="num">Sign-Ups</th><th class="num">% of Total</th></tr></thead><tbody id="g2-source-table"></tbody></table>
     </div>
 
     <!-- GATE 3 -->
     <div class="gate-panel" id="panel-gate3">
       <div class="gate-header"><div class="gate-title">Gate 3 — Onboarding &amp; Activation</div><span class="gate-owner">Owner: Product + Marketing</span></div>
-      <p class="gate-desc">The most important product metric. Measures whether sign-ups experienced real value. Activated = logged in AND clicked at least one data widget within first 7 days.</p>
+      <p class="gate-desc">Did users come back and experience value? Activated = at least one widget interaction within 7 days.</p>
       <div class="metric-grid" id="g3-metrics"></div>
       <div class="chart-wrap"><h3>Week-over-Week Retention (Activated Users)</h3><div class="chart-container"><canvas id="retention-chart"></canvas></div></div>
     </div>
@@ -284,15 +284,14 @@
     <!-- GATE 4 -->
     <div class="gate-panel" id="panel-gate4">
       <div class="gate-header"><div class="gate-title">Gate 4 — Market Monitor Submission</div><span class="gate-owner">Owner: Product</span></div>
-      <p class="gate-desc">Measures whether users submitted their market/indication definition — the core personalisation action that makes Insight Hub useful. Two rates shown: from all sign-ups (funnel health) and from activated users only (product depth). Source: CIO event or Product DB.</p>
+      <p class="gate-desc">Did users submit their market definition — the action that makes Insight Hub personalised for them?</p>
       <div class="metric-grid" id="g4-metrics"></div>
-      <div class="deferred-note">ℹ The gap between the two rates reveals where users are dropping off. If the "from sign-up" rate is much lower than "from activation", most sign-ups are not reaching the submission step at all — a reach or onboarding issue. If the gap is small, activated users are engaging deeply.</div>
     </div>
 
     <!-- GATE 5 -->
     <div class="gate-panel" id="panel-gate5">
       <div class="gate-header"><div class="gate-title">Gate 5 — Commercial Conversion</div><span class="gate-owner">Owner: Commercial (Ludger, Dennis, Max)</span></div>
-      <p class="gate-desc">Measures whether the campaign is generating actual business. Tracks the handoff from product engagement to sales pipeline. Commercial team is responsible for deals — Marketing owns CTA placement.</p>
+      <p class="gate-desc">Is the campaign converting to pipeline? Tracks CTA clicks, deals created, and H1 close progress.</p>
       <div class="metric-grid" id="g5-metrics"></div>
       <div class="section-title">HubSpot Deal Pipeline</div>
       <table class="data-table"><thead><tr><th>Stage</th><th class="num">Deals</th><th>Notes</th></tr></thead><tbody id="g5-pipeline-body"></tbody></table>
@@ -352,8 +351,8 @@ function fmtDateTime(iso) {
 const TOOLTIPS = {
   lemlist_open_rate:   'Of all Tier 2 bulk emails sent via Lemlist, what % were opened. Shows if subject lines and sender names are cutting through.',
   lemlist_ctr:         'Of the Lemlist emails that were opened, what % had a link clicked. Formula: clicks ÷ opens. Shows if the email body and CTA are compelling.',
-  hs_open_rate:        'Of all Tier 1 personal outreach emails sent via HubSpot (from Ludger, Dennis, Max), what % were opened.',
-  hs_ctr:              'Of the HubSpot Tier 1 emails that were opened, what % had a link clicked. Formula: clicks ÷ opens.',
+  hs_open_rate:        'Of all warm outreach emails sent via HubSpot sequence (from Ludger, Dennis, Max), what % were opened.',
+  hs_ctr:              'Of the HubSpot sequence emails that were opened, what % had a link clicked. Formula: clicks ÷ opens.',
   linkedin_ctr:        'Of everyone who saw the LinkedIn ad, what % clicked. Lisa\'s B2B healthcare benchmark is 0.4–0.6%.',
   lp_cvr:              'Of everyone who landed on the Permea landing page, what % clicked through to the sign-up page. Target: >15%.',
   lp_visits:           'Total sessions on the Permea landing page — from ads, emails, organic. This is the top of the funnel.',
@@ -363,9 +362,9 @@ const TOOLTIPS = {
   login_48h:           'Of verified sign-ups, how many logged in within 2 days of creating their account. Low = welcome email or first-login motivation is not working.',
   activation_rate:     'Of verified sign-ups, how many clicked at least one data widget within their first 7 days. This is the agreed activation definition (confirmed by Lisa). Benchmark: 60–75%.',
   activated_users:     'Total count of users who hit the activation milestone (≥1 widget click in first 7 days).',
-  sub_from_signup:     'Of all verified sign-ups, how many submitted a market segment. Shows overall funnel health from top to this step. No fixed benchmark — use as a trend metric.',
-  sub_from_activation: 'Of users who already activated (found value), how many went on to define their market segment. This is the product\'s core action. Benchmark: 40–55% of activated users.',
-  total_segments:      'Raw count of market segment submissions received. Feeds Gate 5 commercial handoffs.',
+  sub_from_signup:     'Of all verified sign-ups, how many submitted a market definition. Shows overall funnel health from top to this step. No fixed benchmark — use as a trend metric.',
+  sub_from_activation: 'Of users who already activated (found value), how many went on to submit their market definition. This is the product\'s core action. Benchmark: 40–55% of activated users.',
+  total_segments:      'Raw count of market definition submissions received. Feeds Gate 5 commercial handoffs.',
   cta_clicks:          'How many users clicked a "Talk to an expert", "Book a call", or similar commercial CTA inside the product. Tracked in PostHog.',
   commercial_touch:    'Of users who submitted a segment, how many had any commercial contact (in-app CTA click or AE outreach). Shows sales reach into the product funnel.',
   followup_24h:        'Of leads handed over to the commercial team, how many were followed up within 24 hours. This is an AE commitment metric, tracked in HubSpot.',
@@ -577,7 +576,7 @@ function renderDashboard(d) {
     { label:'Sign-Up Page',    num: eff('signup_visits',  d.gate1.landing_page?.signup_page_visits),    cvr:fmt(eff('lp_cvr',  d.gate1.landing_page?.cvr_to_signup_page),'% CVR'), gate:'gate1', ragK:'lp_cvr', ragBm:bm.landing_page_cvr },
     { label:'Verified',        num: eff('verified_signups', d.gate2.verified_signups),                  cvr:fmt(eff('signup_cvr', d.gate2.signup_conversion_rate),'% CVR'),    gate:'gate2', ragK:'signup_cvr', ragBm:bm.account_creation_rate },
     { label:'Activated',       num: eff('activated_users', d.gate3.activated_users),                    cvr:fmt(eff('activation_rate', d.gate3.activation_rate_7day),'% of signups'), gate:'gate3', ragK:'activation_rate', ragBm:bm.activation_rate },
-    { label:'Seg. Submitted',  num: eff('total_segments', d.gate4.segment_submissions),                 cvr:fmt(eff('sub_from_activation', d.gate4.submission_rate_from_activation),'% of activated'), gate:'gate4', ragK:'sub_from_activation', ragBm:bm.segment_submission_rate },
+    { label:'Mkt. Definition', num: eff('total_segments', d.gate4.segment_submissions),                 cvr:fmt(eff('sub_from_activation', d.gate4.submission_rate_from_activation),'% of activated'), gate:'gate4', ragK:'sub_from_activation', ragBm:bm.segment_submission_rate },
     { label:'In Pipeline',     num: eff('deals_created',  d.gate5.deals_created),                       cvr:'H1 target: 5+',                                                  gate:'gate5', ragK:'deals_created', ragBm:bm.deals_closed_h1 },
   ];
   document.getElementById('funnel-visual').innerHTML = funnelSteps.map(s => {
@@ -608,8 +607,8 @@ function renderDashboard(d) {
   document.getElementById('g1-metrics').innerHTML = [
     metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate', apiValue:lm.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
     metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)', apiValue:lm.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
-    metricCard({ id:'hs_open_rate',      label:'HubSpot Open Rate (T1)', apiValue:hs.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.hs_open_rate }),
-    metricCard({ id:'hs_ctr',            label:'HubSpot CTR (T1, of opens)', apiValue:hs.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.hs_ctr }),
+    metricCard({ id:'hs_open_rate',      label:'HubSpot Open Rate', apiValue:hs.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.hs_open_rate }),
+    metricCard({ id:'hs_ctr',            label:'HubSpot CTR (of opens)', apiValue:hs.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.hs_ctr }),
     metricCard({ id:'linkedin_ctr',      label:'LinkedIn Ad CTR', apiValue:li.ctr, suffix:'%', benchmarkKey:'linkedin_ctr', benchmarks:bm, tooltip:TOOLTIPS.linkedin_ctr }),
     metricCard({ id:'lp_visits',         label:'Landing Page Visits', apiValue:lp.total_visits, suffix:'', neutral:true, tooltip:TOOLTIPS.lp_visits }),
     metricCard({ id:'lp_cvr',            label:'Landing Page CVR', apiValue:lp.cvr_to_signup_page, suffix:'%', benchmarkKey:'landing_page_cvr', benchmarks:bm, tooltip:TOOLTIPS.lp_cvr }),
@@ -622,7 +621,7 @@ function renderDashboard(d) {
 
   document.getElementById('g1-reach-table').innerHTML = `
     <tr><td>${li.label}</td><td class="num">${li.impressions ? li.impressions.toLocaleString() : '—'}</td><td class="num">${li.clicks ?? '—'}</td><td class="num"><span class="rag-dot ${rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr)}"></span>${fmt(eff('linkedin_ctr',li.ctr),'%')}</td><td><span class="rag-badge ${rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr)}">${ragLabel(rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr))}</span></td></tr>
-    <tr><td>Landing Page</td><td class="num">${fmt(eff('lp_visits',lp.total_visits))} sessions</td><td class="num">${lp.signup_page_visits ?? '—'} → sign-up</td><td class="num"><span class="rag-dot ${rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)}"></span>${fmt(eff('lp_cvr',lp.cvr_to_signup_page),'%')}</td><td><span class="rag-badge ${rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)}">${ragLabel(rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr))}</span></td></tr>
+    <tr><td>Landing Page</td><td class="num">${lp.total_visits !== null ? fmt(eff('lp_visits',lp.total_visits))+' sessions' : '<span style="color:var(--yellow);font-size:11px">Pending HubSpot content scope</span>'}</td><td class="num">${lp.signup_page_visits ?? '—'}</td><td class="num">${lp.cvr_to_signup_page !== null ? '<span class="rag-dot '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'"></span>'+fmt(eff('lp_cvr',lp.cvr_to_signup_page),'%') : '—'}</td><td>${lp.cvr_to_signup_page !== null ? '<span class="rag-badge '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'">'+ragLabel(rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr))+'</span>' : ''}</td></tr>
     <tr style="opacity:0.5"><td>Google Paid</td><td class="num" colspan="3">Deferred — not in scope for this phase</td><td><span style="font-size:11px;color:var(--text-dim)">Deferred</span></td></tr>`;
 
   // ── GATE 2
@@ -635,15 +634,16 @@ function renderDashboard(d) {
 
   const totalSU = eff('verified_signups', g2.verified_signups) || 1;
   const src = g2.signups_by_source || {};
-  const srcLabels = { lemlist_email:'Lemlist Email (Tier 2)', hubspot_email:'HubSpot Email (Tier 1)', linkedin_paid:'LinkedIn Paid', organic:'Organic / Direct' };
-  document.getElementById('g2-source-table').innerHTML = Object.entries(src).map(([k,v]) =>
-    `<tr><td>${srcLabels[k]||k}</td><td class="num">${v ?? '—'}</td><td class="num">${v !== null ? ((v/totalSU)*100).toFixed(1)+'%' : '—'}</td></tr>`).join('') ||
-    '<tr><td colspan="3" style="color:var(--text-dim)">UTM source data not yet available — confirm with product team</td></tr>';
+  const srcLabels = { customer_io:'Customer.io Journey Emails', lemlist:'Lemlist Cold Outreach (Tier 2)', hubspot:'HubSpot Sequence Outreach', linkedin:'LinkedIn (Organic + Paid)', temedica_website:'Temedica Website' };
+  const srcHasData = Object.values(src).some(v => v !== null);
+  document.getElementById('g2-source-table').innerHTML = srcHasData
+    ? Object.entries(src).map(([k,v]) =>
+        `<tr><td>${srcLabels[k]||k}</td><td class="num">${v ?? '—'}</td><td class="num">${v !== null ? ((v/totalSU)*100).toFixed(1)+'%' : '—'}</td></tr>`).join('')
+    : '<tr><td colspan="3" style="color:var(--text-dim)">Pending UTM tracking setup — source breakdown will appear once UTMs are captured on sign-up events.</td></tr>';
 
   // ── GATE 3
   const g3 = d.gate3;
   document.getElementById('g3-metrics').innerHTML = [
-    metricCard({ id:'login_48h', label:'Login within 48h Rate', apiValue:g3.login_48h_rate, suffix:'%', neutral:true, extraInfo:`${g3.logged_in_within_48h ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} sign-ups`, tooltip:TOOLTIPS.login_48h }),
     metricCard({ id:'activation_rate', label:'Activation Rate (7-day)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, tooltip:TOOLTIPS.activation_rate }),
     metricCard({ id:'activated_users', label:'Activated Users', apiValue:g3.activated_users, neutral:true, extraInfo:`of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.activated_users }),
   ].join('');
@@ -662,9 +662,9 @@ function renderDashboard(d) {
   const g4 = d.gate4;
   // Gap 4: submission from_signup = neutral (no benchmark); from_activation = uses segment_submission_rate benchmark
   document.getElementById('g4-metrics').innerHTML = [
-    metricCard({ id:'sub_from_signup',     label:'Submission Rate (from sign-up)', apiValue:g4.submission_rate_from_signup,    suffix:'%', neutral:true, extraInfo:`${g4.segment_submissions ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.sub_from_signup }),
-    metricCard({ id:'sub_from_activation', label:'Submission Rate (from activation)', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
-    metricCard({ id:'total_segments',      label:'Total Segments Submitted', apiValue:g4.segment_submissions, neutral:true, tooltip:TOOLTIPS.total_segments }),
+    metricCard({ id:'sub_from_signup',     label:'Market Def. Rate (from sign-up)', apiValue:g4.submission_rate_from_signup,    suffix:'%', neutral:true, extraInfo:`${g4.segment_submissions ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.sub_from_signup }),
+    metricCard({ id:'sub_from_activation', label:'Market Def. Rate (from activation)', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
+    metricCard({ id:'total_segments',      label:'Market Definitions Submitted', apiValue:g4.segment_submissions, neutral:true, tooltip:TOOLTIPS.total_segments }),
   ].join('');
 
   // ── GATE 5
@@ -672,7 +672,6 @@ function renderDashboard(d) {
   document.getElementById('g5-metrics').innerHTML = [
     metricCard({ id:'cta_clicks',    label:'In-App CTA Clicks', apiValue:g5.cta_clicks_inapp, neutral:true, extraInfo:'Talk to expert / Book call', tooltip:TOOLTIPS.cta_clicks }),
     metricCard({ id:'commercial_touch', label:'Commercial Touch Rate', apiValue:g5.commercial_touch_rate, suffix:'%', neutral:true, extraInfo:'Of segment submitters', tooltip:TOOLTIPS.commercial_touch }),
-    metricCard({ id:'followup_24h',  label:'AE Follow-Up <24h', apiValue:g5.sales_followup_rate, suffix:'%', neutral:true, extraInfo:`${g5.sales_followup_within_1day ?? '—'} leads followed up in time`, tooltip:TOOLTIPS.followup_24h }),
     metricCard({ id:'deals_created', label:'Deals in Pipeline', apiValue:g5.deals_created, neutral:true, tooltip:TOOLTIPS.deals_created }),
     metricCard({ id:'deals_closed',  label:'Deals Closed H1', apiValue:g5.deals_closed_h1, neutral:true, extraInfo:`Target: ${g5.h1_goal}+`, tooltip:TOOLTIPS.deals_closed }),
   ].join('');
@@ -680,7 +679,7 @@ function renderDashboard(d) {
   const stageLabels = { qualified:'Qualified', evaluation:'Evaluation', proposal:'Proposal', closed_won:'Closed Won' };
   document.getElementById('g5-pipeline-body').innerHTML = Object.entries(g5.deals_by_stage||{}).map(([k,v]) =>
     `<tr><td>${stageLabels[k]||k}</td><td class="num">${v}</td><td>${k==='closed_won'&&v===0?'H1 goal: '+g5.h1_goal+'+':''}</td></tr>`).join('') ||
-    '<tr><td colspan="3" style="color:var(--text-dim)">HubSpot pipeline not yet connected</td></tr>';
+    '<tr><td colspan="3" style="color:var(--text-dim)">No deals logged yet — commercial team to create deals with "Insight Hub Free Trial" in the name.</td></tr>';
 
   if (dealsChartInst) dealsChartInst.destroy();
   dealsChartInst = new Chart(document.getElementById('deals-chart').getContext('2d'), {

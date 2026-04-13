@@ -1,6 +1,10 @@
 """
 Fetch Customer.io campaign email metrics for the Insight Hub dashboard.
 
+The campaign-level /campaigns/{id}/metrics endpoint returns zeros for journey
+campaigns. Correct approach: fetch campaign details to get email action IDs,
+then sum metrics across all email actions per campaign.
+
 Returns per-campaign metrics keyed by journey type:
   - pta:             PTA journey (drives segment submission — Gate 4)
   - core_journey:    Core Journey (drives conversion — Gate 5)
@@ -32,6 +36,13 @@ HEADERS = {
 CAMPAIGN_IDENTIFIER = os.environ.get("CIO_CAMPAIGN_NAME", "Insight Hub")
 
 
+def to_int(val):
+    """Normalise CIO metric values — may be a scalar or a time-series list."""
+    if isinstance(val, list):
+        return sum(v for v in val if isinstance(v, (int, float)))
+    return int(val) if val else 0
+
+
 def classify_campaign(name):
     """
     Identify which journey a campaign belongs to by its name.
@@ -53,9 +64,17 @@ def fetch_all_campaigns():
     return resp.json().get("campaigns", [])
 
 
-def fetch_campaign_metrics(campaign_id):
+def fetch_campaign_details(campaign_id):
+    """Fetch full campaign object including actions list."""
+    resp = requests.get(f"{API_BASE}/campaigns/{campaign_id}", headers=HEADERS, timeout=30)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def fetch_action_metrics(campaign_id, action_id):
+    """Fetch email delivery metrics for a single campaign action."""
     resp = requests.get(
-        f"{API_BASE}/campaigns/{campaign_id}/metrics",
+        f"{API_BASE}/campaigns/{campaign_id}/actions/{action_id}/metrics",
         headers=HEADERS,
         timeout=30,
     )
@@ -65,45 +84,55 @@ def fetch_campaign_metrics(campaign_id):
 
 def get_campaign_email_metrics(campaign):
     """
-    Fetch and return structured email metrics for a single campaign.
-    Returns a dict, or None if the API call fails.
+    Sum email metrics across all email actions in a campaign.
+    Returns a dict, or None if the campaign has no email actions or all calls fail.
     """
     cid  = campaign["id"]
     name = campaign.get("name", f"Campaign {cid}")
+
     try:
-        data = fetch_campaign_metrics(cid)
+        details       = fetch_campaign_details(cid)
+        email_actions = [a for a in details.get("actions", []) if a.get("Type") == "Email"]
 
-        # Log raw response shape for debugging
-        print(f"  ! CIO raw keys for '{name}': {list(data.keys())}", file=sys.stderr)
-        print(f"  ! CIO raw data: {json.dumps(data)[:600]}", file=sys.stderr)
+        if not email_actions:
+            print(f"  ! CIO: no email actions in '{name}'", file=sys.stderr)
+            return None
 
-        m = data.get("metric", {})
+        print(f"  ✓ CIO: '{name}' — {len(email_actions)} email actions", file=sys.stderr)
 
-        # CIO metrics API may return arrays (time series) or scalars.
-        # Normalise both cases by summing lists.
-        def to_int(val):
-            if isinstance(val, list):
-                return sum(v for v in val if isinstance(v, (int, float)))
-            return int(val) if val else 0
+        totals = {"sent": 0, "opened": 0, "clicked": 0, "bounced": 0, "unsubscribed": 0}
 
-        delivered  = to_int(m.get("delivered",    0))
-        bounced    = to_int(m.get("bounced",       0))
-        sent       = delivered + bounced
-        opened     = to_int(m.get("opened",        0))
-        clicked    = to_int(m.get("clicked",       0))
-        open_rate  = round((opened  / max(sent,   1)) * 100, 1)
-        ctr        = round((clicked / max(opened, 1)) * 100, 1)
-        print(f"  ✓ CIO: '{name}' — sent={sent}, open={open_rate}%, ctr={ctr}%", file=sys.stderr)
+        for action in email_actions:
+            aid = action["ID"]
+            try:
+                data = fetch_action_metrics(cid, aid)
+                m    = data.get("metric", {})
+                delivered = to_int(m.get("delivered", 0))
+                bounced   = to_int(m.get("bounced",   0))
+                totals["sent"]         += delivered + bounced
+                totals["opened"]       += to_int(m.get("opened",       0))
+                totals["clicked"]      += to_int(m.get("clicked",      0))
+                totals["bounced"]      += bounced
+                totals["unsubscribed"] += to_int(m.get("unsubscribed", 0))
+            except Exception as e:
+                print(f"    ! action {aid} error: {e}", file=sys.stderr)
+
+        open_rate = round((totals["opened"]  / max(totals["sent"],   1)) * 100, 1)
+        ctr       = round((totals["clicked"] / max(totals["opened"], 1)) * 100, 1)
+
+        print(f"  ✓ CIO: '{name}' totals — sent={totals['sent']}, open={open_rate}%, ctr={ctr}%", file=sys.stderr)
+
         return {
             "name":         name,
-            "sent":         sent,
-            "opened":       opened,
-            "clicked":      clicked,
-            "bounced":      bounced,
-            "unsubscribed": to_int(m.get("unsubscribed", 0)),
+            "sent":         totals["sent"],
+            "opened":       totals["opened"],
+            "clicked":      totals["clicked"],
+            "bounced":      totals["bounced"],
+            "unsubscribed": totals["unsubscribed"],
             "open_rate":    open_rate,
             "ctr":          ctr,
         }
+
     except Exception as e:
         print(f"  ✗ CIO: could not fetch '{name}' (id={cid}): {e}", file=sys.stderr)
         return None

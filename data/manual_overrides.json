@@ -1,0 +1,11 @@
+{
+  "_comment": "Manual data for metrics not available via API. Update weekly via screenshot workflow.",
+  "hubspot_sequence": {
+    "_note": "HubSpot Sequences API has no statistics endpoints. Update from HubSpot > Sales > Sequences > Performance tab.",
+    "enrolled": 157,
+    "emails_sent": 0,
+    "open_rate": 0.0,
+    "reply_rate": 0.0,
+    "last_updated": "2026-04-13"
+  }
+}

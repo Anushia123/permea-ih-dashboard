@@ -63,11 +63,14 @@ jobs:
         if: ${{ github.event.inputs.force_sample_data != 'true' }}
         env:
           HUBSPOT_TOKEN: ${{ secrets.HUBSPOT_TOKEN }}
-          HUBSPOT_PIPELINE_ID: ${{ secrets.HUBSPOT_PIPELINE_ID }}
-          HUBSPOT_CAMPAIGN_NAME: "Insight Hub"
         run: |
-          python scripts/fetch_hubspot.py > /tmp/ih_dash/hubspot.json
-          echo "✓ HubSpot done"
+          if [ -z "$HUBSPOT_TOKEN" ]; then
+            echo "✗ HUBSPOT_TOKEN secret is empty or not set — skipping"
+          else
+            echo "✓ HUBSPOT_TOKEN is set (${#HUBSPOT_TOKEN} chars)"
+            python scripts/fetch_hubspot.py > /tmp/ih_dash/hubspot.json
+            python3 -c "import json; d=json.load(open('/tmp/ih_dash/hubspot.json')); print(f'  deals={d.get(\"deals_created\",0)}, closed_won={d.get(\"deals_closed_h1\",0)}, enrolled={d.get(\"sequence_enrolled\")}')"
+          fi
         continue-on-error: true
 
       # ── 6. FETCH POSTHOG

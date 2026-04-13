@@ -1,13 +1,13 @@
 """
 Fetch Customer.io campaign email metrics for the Insight Hub dashboard.
 
-Fetches two things:
-  1. Email delivery/engagement metrics across all Insight Hub campaigns
-  2. segment_submitted event count from CIO journey data (primary source per system architecture)
+Returns per-campaign metrics keyed by journey type:
+  - pta:             PTA journey (drives segment submission — Gate 4)
+  - core_journey:    Core Journey (drives conversion — Gate 5)
+  - urgency_journey: Urgency Journey (last-days conversion push — Gate 5)
 
-Requires env var: CIO_API_KEY (Reporting API key from CIO workspace settings)
+Requires env var: CIO_API_KEY (App API key from CIO Account Settings → API Credentials)
 Optional env var: CIO_CAMPAIGN_NAME (default: "Insight Hub")
-Optional env var: CIO_SEGMENT_EVENT (default: "segment_submitted")
 """
 
 import os
@@ -17,7 +17,6 @@ import requests
 from datetime import datetime, timezone
 
 # EU region workspace — must use api-eu.customer.io, not api.customer.io
-# Using the wrong region causes 401 errors even with a valid key.
 API_BASE = "https://api-eu.customer.io/v1"
 
 api_key = os.environ.get("CIO_API_KEY")
@@ -27,22 +26,34 @@ if not api_key:
 
 HEADERS = {
     "Authorization": f"Bearer {api_key}",
-    "Content-Type": "application/json",
+    "Content-Type":  "application/json",
 }
 
 CAMPAIGN_IDENTIFIER = os.environ.get("CIO_CAMPAIGN_NAME", "Insight Hub")
-SEGMENT_EVENT_NAME  = os.environ.get("CIO_SEGMENT_EVENT", "segment_submitted")
+
+
+def classify_campaign(name):
+    """
+    Identify which journey a campaign belongs to by its name.
+    Returns: 'pta', 'core_journey', 'urgency_journey', or None.
+    """
+    n = name.lower()
+    if "urgency" in n:
+        return "urgency_journey"
+    if "core journey" in n:
+        return "core_journey"
+    if "pta" in n:
+        return "pta"
+    return None
 
 
 def fetch_all_campaigns():
-    """Get a list of all campaigns/broadcasts in the workspace."""
     resp = requests.get(f"{API_BASE}/campaigns", headers=HEADERS, timeout=30)
     resp.raise_for_status()
     return resp.json().get("campaigns", [])
 
 
 def fetch_campaign_metrics(campaign_id):
-    """Get email delivery/engagement metrics for a specific campaign."""
     resp = requests.get(
         f"{API_BASE}/campaigns/{campaign_id}/metrics",
         headers=HEADERS,
@@ -52,96 +63,64 @@ def fetch_campaign_metrics(campaign_id):
     return resp.json()
 
 
-def fetch_segment_submissions():
+def get_campaign_email_metrics(campaign):
     """
-    Fetch count of unique customers who triggered the segment_submitted event in CIO.
-    Uses the CIO Reporting API /v1/metrics/events endpoint.
-    Returns an integer count, or None if the API call fails.
+    Fetch and return structured email metrics for a single campaign.
+    Returns a dict, or None if the API call fails.
     """
+    cid  = campaign["id"]
+    name = campaign.get("name", f"Campaign {cid}")
     try:
-        resp = requests.get(
-            f"{API_BASE}/metrics/events",
-            headers=HEADERS,
-            params={"name": SEGMENT_EVENT_NAME, "period": "days", "steps": 90},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        # Sum unique counts across all time buckets returned
-        metric = data.get("metric", {})
-        unique_counts = metric.get("unique_counts", metric.get("counts", []))
-        total = sum(unique_counts) if unique_counts else None
-        print(f"  ✓ CIO: segment_submitted event count = {total}", file=sys.stderr)
-        return total
+        data = fetch_campaign_metrics(cid)
+        m    = data.get("metric", {})
+        delivered  = m.get("delivered",    0)
+        bounced    = m.get("bounced",      0)
+        sent       = delivered + bounced
+        opened     = m.get("opened",       0)
+        clicked    = m.get("clicked",      0)
+        open_rate  = round((opened  / max(sent,   1)) * 100, 1)
+        ctr        = round((clicked / max(opened, 1)) * 100, 1)
+        print(f"  ✓ CIO: '{name}' — sent={sent}, open={open_rate}%, ctr={ctr}%", file=sys.stderr)
+        return {
+            "name":        name,
+            "sent":        sent,
+            "opened":      opened,
+            "clicked":     clicked,
+            "bounced":     bounced,
+            "unsubscribed":m.get("unsubscribed", 0),
+            "open_rate":   open_rate,
+            "ctr":         ctr,
+        }
     except Exception as e:
-        print(f"  ! CIO: could not fetch segment_submitted event ({e}) — PostHog will be used as fallback", file=sys.stderr)
+        print(f"  ✗ CIO: could not fetch '{name}' (id={cid}): {e}", file=sys.stderr)
         return None
-
-
-def find_ih_campaigns(campaigns):
-    """Filter campaigns to those related to Insight Hub."""
-    return [
-        c for c in campaigns
-        if CAMPAIGN_IDENTIFIER.lower() in c.get("name", "").lower()
-    ]
-
-
-def aggregate_metrics(campaign_list):
-    """
-    Aggregate email metrics across all IH campaigns.
-    Returns a dict with: sent, opened, open_rate, clicked, ctr, bounced, unsubscribed.
-    """
-    totals = {
-        "sent": 0,
-        "opened": 0,
-        "clicked": 0,
-        "bounced": 0,
-        "unsubscribed": 0,
-        "campaigns_found": [],
-    }
-
-    for campaign in campaign_list:
-        cid = campaign["id"]
-        name = campaign.get("name", f"Campaign {cid}")
-        try:
-            metrics = fetch_campaign_metrics(cid)
-            m = metrics.get("metric", {})
-            totals["sent"]          += m.get("delivered", 0) + m.get("bounced", 0)
-            totals["opened"]        += m.get("opened", 0)
-            totals["clicked"]       += m.get("clicked", 0)
-            totals["bounced"]       += m.get("bounced", 0)
-            totals["unsubscribed"]  += m.get("unsubscribed", 0)
-            totals["campaigns_found"].append({"id": cid, "name": name})
-            print(f"  ✓ CIO: fetched '{name}' (id={cid})", file=sys.stderr)
-        except Exception as e:
-            print(f"  ✗ CIO: could not fetch '{name}': {e}", file=sys.stderr)
-
-    sent = totals["sent"] or 1  # avoid div/0
-    totals["open_rate"] = round((totals["opened"] / sent) * 100, 1)
-    totals["ctr"]       = round((totals["clicked"] / max(totals["opened"], 1)) * 100, 1)
-
-    return totals
 
 
 def main():
     print("→ Fetching Customer.io metrics…", file=sys.stderr)
-    campaigns = fetch_all_campaigns()
-    ih_campaigns = find_ih_campaigns(campaigns)
+
+    all_campaigns = fetch_all_campaigns()
+    ih_campaigns  = [c for c in all_campaigns if CAMPAIGN_IDENTIFIER.lower() in c.get("name", "").lower()]
 
     if not ih_campaigns:
-        print(f"  ! No CIO campaigns found matching '{CAMPAIGN_IDENTIFIER}'", file=sys.stderr)
-        print(f"  ! Available: {[c.get('name') for c in campaigns[:10]]}", file=sys.stderr)
+        print(f"  ! No CIO campaigns matching '{CAMPAIGN_IDENTIFIER}' — available: {[c.get('name') for c in all_campaigns[:10]]}", file=sys.stderr)
 
-    metrics = aggregate_metrics(ih_campaigns)
+    campaigns_by_type = {"pta": None, "core_journey": None, "urgency_journey": None}
 
-    # Segment submissions — CIO is primary source per system architecture
-    segment_count = fetch_segment_submissions()
-    metrics["segment_submissions"] = segment_count  # None = no data; build_metrics falls back to PostHog
+    for campaign in ih_campaigns:
+        ctype = classify_campaign(campaign.get("name", ""))
+        if ctype:
+            campaigns_by_type[ctype] = get_campaign_email_metrics(campaign)
+        else:
+            print(f"  ! CIO: unclassified campaign '{campaign.get('name')}' — skipping", file=sys.stderr)
 
-    metrics["fetched_at"] = datetime.now(timezone.utc).isoformat()
-    metrics["source"] = "customer.io"
+    result = {
+        "source":     "customer.io",
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "campaigns":  campaigns_by_type,
+    }
 
-    print(json.dumps(metrics, indent=2))
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == "__main__":

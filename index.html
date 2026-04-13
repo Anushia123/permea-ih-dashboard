@@ -286,6 +286,8 @@
       <div class="gate-header"><div class="gate-title">Gate 4 — Market Monitor Submission</div><span class="gate-owner">Owner: Product</span></div>
       <p class="gate-desc">Did users submit their market definition — the action that makes Insight Hub personalised for them?</p>
       <div class="metric-grid" id="g4-metrics"></div>
+      <div class="section-title">Nurture Emails — PTA Journey</div>
+      <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g4-cio-table"></tbody></table>
     </div>
 
     <!-- GATE 5 -->
@@ -293,6 +295,8 @@
       <div class="gate-header"><div class="gate-title">Gate 5 — Commercial Conversion</div><span class="gate-owner">Owner: Commercial (Ludger, Dennis, Max)</span></div>
       <p class="gate-desc">Is the campaign converting to pipeline? Tracks CTA clicks, deals created, and H1 close progress.</p>
       <div class="metric-grid" id="g5-metrics"></div>
+      <div class="section-title">Nurture Emails — CIO Journeys</div>
+      <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g5-cio-table"></tbody></table>
       <div class="section-title">HubSpot Deal Pipeline</div>
       <table class="data-table"><thead><tr><th>Stage</th><th class="num">Deals</th><th>Notes</th></tr></thead><tbody id="g5-pipeline-body"></tbody></table>
       <div class="chart-wrap"><h3>H1 Deal Close Progress vs. Targets</h3><div class="chart-container" style="height:150px;"><canvas id="deals-chart"></canvas></div></div>
@@ -662,6 +666,12 @@ function renderDashboard(d) {
     metricCard({ id:'total_segments',      label:'Market Definitions Submitted', apiValue:g4.segment_submissions, neutral:true, tooltip:TOOLTIPS.total_segments }),
   ].join('');
 
+  // Gate 4 — PTA nurture emails
+  const g4pta = g4.cio_nurture;
+  document.getElementById('g4-cio-table').innerHTML = g4pta
+    ? `<tr><td>PTA Journey <span style="font-size:11px;color:var(--text-dim)">(activating demo users → submit market definition)</span></td><td class="num">${g4pta.sent ?? '—'}</td><td class="num"><span class="rag-dot ${rag(g4pta.open_rate, bm.email_open_rate)}"></span>${fmt(g4pta.open_rate,'%')}</td><td class="num"><span class="rag-dot ${rag(g4pta.ctr, bm.email_ctr)}"></span>${fmt(g4pta.ctr,'%')}</td></tr>`
+    : '<tr><td colspan="4" style="color:var(--text-dim)">CIO_API_KEY not yet connected — no data.</td></tr>';
+
   // ── GATE 5
   const g5 = d.gate5;
   document.getElementById('g5-metrics').innerHTML = [
@@ -670,6 +680,18 @@ function renderDashboard(d) {
     metricCard({ id:'deals_created', label:'Deals in Pipeline', apiValue:g5.deals_created, neutral:true, tooltip:TOOLTIPS.deals_created }),
     metricCard({ id:'deals_closed',  label:'Deals Closed H1', apiValue:g5.deals_closed_h1, neutral:true, extraInfo:`Target: ${g5.h1_goal}+`, tooltip:TOOLTIPS.deals_closed }),
   ].join('');
+
+  // Gate 5 — CIO nurture emails (Core Journey + Urgency)
+  const g5cio = g5.cio_nurture || {};
+  const cj  = g5cio.core_journey;
+  const uj  = g5cio.urgency_journey;
+  function cioRow(label, hint, data) {
+    if (!data) return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num" colspan="3" style="color:var(--text-dim)">—</td></tr>`;
+    return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num">${data.sent ?? '—'}</td><td class="num"><span class="rag-dot ${rag(data.open_rate, bm.email_open_rate)}"></span>${fmt(data.open_rate,'%')}</td><td class="num"><span class="rag-dot ${rag(data.ctr, bm.email_ctr)}"></span>${fmt(data.ctr,'%')}</td></tr>`;
+  }
+  document.getElementById('g5-cio-table').innerHTML =
+    cioRow('Core Journey', '(activated users → see value → convert)', cj) +
+    cioRow('Urgency Journey', '(last-days push → deal close)', uj);
 
   const stageLabels = { qualified:'Qualified', evaluation:'Evaluation', proposal:'Proposal', closed_won:'Closed Won' };
   document.getElementById('g5-pipeline-body').innerHTML = Object.entries(g5.deals_by_stage||{}).map(([k,v]) =>

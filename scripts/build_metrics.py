@@ -89,7 +89,8 @@ def build():
     lemlist = load_source("lemlist")
 
     # Convenience aliases
-    hs_seq     = hubspot.get("sequence_stats", {})
+    hs_seq        = hubspot.get("sequence_stats", {})
+    cio_campaigns = cio.get("campaigns", {})
 
     verified_signups  = posthog.get("verified_signups",  0)
     activated_users   = posthog.get("activated_users",   0)
@@ -197,6 +198,7 @@ def build():
             "segment_submissions":            segment_submitted,
             "submission_rate_from_signup":    posthog.get("submission_rate_signup",    0),
             "submission_rate_from_activation":posthog.get("submission_rate_activation",0),
+            "cio_nurture":                    cio_campaigns.get("pta"),
         },
         "gate5": {
             "name":  "Commercial Conversion",
@@ -210,6 +212,10 @@ def build():
             "deals_closed_h1":           deals_closed,
             "deals_by_stage":            hubspot.get("deals_by_stage", {}),
             "h1_goal":                   5,
+            "cio_nurture": {
+                "core_journey":    cio_campaigns.get("core_journey"),
+                "urgency_journey": cio_campaigns.get("urgency_journey"),
+            },
         },
         "benchmarks": BENCHMARKS,
     }

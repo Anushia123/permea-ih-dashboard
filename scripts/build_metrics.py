@@ -30,7 +30,6 @@ BENCHMARKS = {
     "sales_evaluation_rate": {"conservative": 55, "realistic": 60, "optimal": 70},
     "deal_close_rate":       {"conservative": 25, "realistic": 30, "optimal": 35},
     "deals_closed_h1":       {"conservative": 2,  "realistic": 4,  "optimal": 7},
-    "linkedin_ctr":          {"conservative": 0.3,"realistic": 0.5,"optimal": 0.6},
     "landing_page_cvr":      {"conservative": 15, "realistic": 20, "optimal": 25},
 }
 
@@ -91,7 +90,6 @@ def build():
 
     # Convenience aliases
     hs_seq     = hubspot.get("sequence_stats", {})
-    li_data    = load_source("linkedin")  # optional — may not exist yet
 
     verified_signups  = posthog.get("verified_signups",  0)
     activated_users   = posthog.get("activated_users",   0)
@@ -158,20 +156,6 @@ def build():
                     "bounced":      None,
                     "unsubscribed": 0,
                 },
-                "linkedin": {
-                    "label":       "LinkedIn Paid",
-                    "impressions": li_data.get("impressions", None),
-                    "clicks":      li_data.get("clicks",      None),
-                    "ctr":         li_data.get("ctr",         None),
-                    "cost_per_click": li_data.get("cost_per_click", None),
-                    "conversions": li_data.get("conversions", None),
-                    "spend":       li_data.get("spend",       None),
-                    "status":      "live" if li_data else "pending_oauth",
-                },
-                "google": {
-                    "label":  "Google Paid",
-                    "status": "deferred",
-                },
                 "organic": {
                     "label":               "Organic",
                     "landing_page_visits": None,
@@ -179,7 +163,7 @@ def build():
                 },
             },
             "landing_page": {
-                "total_visits":          None,
+                "total_visits":          hubspot.get("landing_page_visits"),
                 "cvr_to_signup_page":    None,
                 "signup_page_visits":    None,
             },

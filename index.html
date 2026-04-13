@@ -256,12 +256,12 @@
     <!-- GATE 1 -->
     <div class="gate-panel active" id="panel-gate1">
       <div class="gate-header"><div class="gate-title">Gate 1 — Messaging &amp; Reach</div><span class="gate-owner">Owner: Marketing</span></div>
-      <p class="gate-desc">Email outreach, paid ads, and landing page performance — before anyone signs up.</p>
+      <p class="gate-desc">Email outreach and landing page performance — before anyone signs up.</p>
       <div class="metric-grid" id="g1-metrics"></div>
       <div class="section-title">Email Performance by Channel</div>
       <table class="data-table"><thead><tr><th>Channel</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th><th class="num">Replies</th><th class="num">Bounced</th><th>Status</th></tr></thead><tbody id="g1-email-table"></tbody></table>
-      <div class="section-title">Paid &amp; Organic Reach</div>
-      <table class="data-table"><thead><tr><th>Channel</th><th class="num">Impressions / Visits</th><th class="num">Clicks</th><th class="num">CTR / CVR</th><th>Status</th></tr></thead><tbody id="g1-reach-table"></tbody></table>
+      <div class="section-title">Landing Page</div>
+      <table class="data-table"><thead><tr><th>Channel</th><th class="num">Visits</th><th class="num">Sign-up Page Visits</th><th class="num">CVR</th><th>Status</th></tr></thead><tbody id="g1-reach-table"></tbody></table>
     </div>
 
     <!-- GATE 2 -->
@@ -353,7 +353,6 @@ const TOOLTIPS = {
   lemlist_ctr:         'Of the Lemlist emails that were opened, what % had a link clicked. Formula: clicks ÷ opens. Shows if the email body and CTA are compelling.',
   hs_open_rate:        'Of all warm outreach emails sent via HubSpot sequence (from Ludger, Dennis, Max), what % were opened.',
   hs_ctr:              'Of the HubSpot sequence emails that were opened, what % had a link clicked. Formula: clicks ÷ opens.',
-  linkedin_ctr:        'Of everyone who saw the LinkedIn ad, what % clicked. Lisa\'s B2B healthcare benchmark is 0.4–0.6%.',
   lp_cvr:              'Of everyone who landed on the Permea landing page, what % clicked through to the sign-up page. Target: >15%.',
   lp_visits:           'Total sessions on the Permea landing page — from ads, emails, organic. This is the top of the funnel.',
   signup_visits:       'Number of people who reached the actual sign-up page inside the product. Comes from landing page CVR.',
@@ -601,7 +600,6 @@ function renderDashboard(d) {
   // ── GATE 1
   const lm = d.gate1.channels.lemlist;
   const hs = d.gate1.channels.hubspot;
-  const li = d.gate1.channels.linkedin;
   const lp = d.gate1.landing_page || {};
 
   document.getElementById('g1-metrics').innerHTML = [
@@ -609,7 +607,6 @@ function renderDashboard(d) {
     metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)', apiValue:lm.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
     metricCard({ id:'hs_open_rate',      label:'HubSpot Open Rate', apiValue:hs.open_rate, suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.hs_open_rate }),
     metricCard({ id:'hs_ctr',            label:'HubSpot CTR (of opens)', apiValue:hs.ctr, suffix:'%', benchmarkKey:'email_ctr', benchmarks:bm, tooltip:TOOLTIPS.hs_ctr }),
-    metricCard({ id:'linkedin_ctr',      label:'LinkedIn Ad CTR', apiValue:li.ctr, suffix:'%', benchmarkKey:'linkedin_ctr', benchmarks:bm, tooltip:TOOLTIPS.linkedin_ctr }),
     metricCard({ id:'lp_visits',         label:'Landing Page Visits', apiValue:lp.total_visits, suffix:'', neutral:true, tooltip:TOOLTIPS.lp_visits }),
     metricCard({ id:'lp_cvr',            label:'Landing Page CVR', apiValue:lp.cvr_to_signup_page, suffix:'%', benchmarkKey:'landing_page_cvr', benchmarks:bm, tooltip:TOOLTIPS.lp_cvr }),
   ].join('');
@@ -620,9 +617,7 @@ function renderDashboard(d) {
   ].map(r => `<tr><td>${r.ch}</td><td class="num">${r.sent ?? '—'}</td><td class="num"><span class="rag-dot ${r.rO}"></span>${fmt(r.open,'%')}</td><td class="num"><span class="rag-dot ${r.rC}"></span>${fmt(r.ctr,'%')}</td><td class="num">${r.rep ?? '—'}</td><td class="num">${r.bnc ?? '—'}</td></tr>`).join('');
 
   document.getElementById('g1-reach-table').innerHTML = `
-    <tr><td>${li.label}</td><td class="num">${li.impressions ? li.impressions.toLocaleString() : '—'}</td><td class="num">${li.clicks ?? '—'}</td><td class="num"><span class="rag-dot ${rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr)}"></span>${fmt(eff('linkedin_ctr',li.ctr),'%')}</td><td><span class="rag-badge ${rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr)}">${ragLabel(rag(eff('linkedin_ctr',li.ctr), bm.linkedin_ctr))}</span></td></tr>
-    <tr><td>Landing Page</td><td class="num">${lp.total_visits !== null ? fmt(eff('lp_visits',lp.total_visits))+' sessions' : '<span style="color:var(--yellow);font-size:11px">Pending HubSpot content scope</span>'}</td><td class="num">${lp.signup_page_visits ?? '—'}</td><td class="num">${lp.cvr_to_signup_page !== null ? '<span class="rag-dot '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'"></span>'+fmt(eff('lp_cvr',lp.cvr_to_signup_page),'%') : '—'}</td><td>${lp.cvr_to_signup_page !== null ? '<span class="rag-badge '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'">'+ragLabel(rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr))+'</span>' : ''}</td></tr>
-    <tr style="opacity:0.5"><td>Google Paid</td><td class="num" colspan="3">Deferred — not in scope for this phase</td><td><span style="font-size:11px;color:var(--text-dim)">Deferred</span></td></tr>`;
+    <tr><td>temedica.com/permea/insighthub/freetrial</td><td class="num">${lp.total_visits !== null ? fmt(eff('lp_visits',lp.total_visits))+' sessions' : '—'}</td><td class="num">${lp.signup_page_visits ?? '—'}</td><td class="num">${lp.cvr_to_signup_page !== null ? '<span class="rag-dot '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'"></span>'+fmt(eff('lp_cvr',lp.cvr_to_signup_page),'%') : '—'}</td><td>${lp.cvr_to_signup_page !== null ? '<span class="rag-badge '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'">'+ragLabel(rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr))+'</span>' : ''}</td></tr>`;
 
   // ── GATE 2
   const g2 = d.gate2;
@@ -634,7 +629,7 @@ function renderDashboard(d) {
 
   const totalSU = eff('verified_signups', g2.verified_signups) || 1;
   const src = g2.signups_by_source || {};
-  const srcLabels = { customer_io:'Customer.io Journey Emails', lemlist:'Lemlist Cold Outreach (Tier 2)', hubspot:'HubSpot Sequence Outreach', linkedin:'LinkedIn (Organic + Paid)', temedica_website:'Temedica Website' };
+  const srcLabels = { customer_io:'Customer.io Journey Emails', lemlist:'Lemlist Cold Outreach (Tier 2)', hubspot:'HubSpot Sequence Outreach', temedica_website:'Temedica Website' };
   const srcHasData = Object.values(src).some(v => v !== null);
   document.getElementById('g2-source-table').innerHTML = srcHasData
     ? Object.entries(src).map(([k,v]) =>

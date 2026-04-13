@@ -7,6 +7,7 @@ Fetches:
   - IH Free Trial deals from the general pipeline (filtered by deal name)
   - Pipeline stages for closed-won detection (probability == 1.0)
   - Contact list member count for the IH sequence (crm.lists.read)
+  - Landing page visits via Analytics API v2 (requires content scope)
 
 Gate 1 HubSpot email stats (sequence) are NOT available via API.
 They come from data/manual_overrides.json instead.
@@ -16,7 +17,7 @@ import os
 import json
 import sys
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 MANUAL_OVERRIDES_PATH = Path(__file__).parent.parent / "data" / "manual_overrides.json"
@@ -48,6 +49,10 @@ PIPELINE_ID = "default"
 
 # Name of the HubSpot contact list tracking sequence enrollment.
 LIST_NAME = "Insight Hub Free Demo Access - Warm Outreach"
+
+# Landing page path to track (HubSpot Analytics API matches on URL path)
+LANDING_PAGE_PATH = "/permea/insighthub/freetrial"
+CAMPAIGN_START = os.environ.get("CAMPAIGN_START", "2026-03-01")
 
 
 def fetch_pipeline_stages(pipeline_id):
@@ -109,6 +114,37 @@ def fetch_list_member_count():
         if LIST_NAME.lower() in lst.get("name", "").lower():
             return lst.get("memberCount", 0)
     return None
+
+
+def fetch_landing_page_visits():
+    """
+    Fetch total visit count for the IH landing page via HubSpot Analytics API v2.
+    Requires 'content' scope on the Private App token.
+    Returns int (visit count) or None if unavailable.
+    """
+    try:
+        start = datetime.strptime(CAMPAIGN_START, "%Y-%m-%d").strftime("%Y%m%d")
+        end   = datetime.now(timezone.utc).strftime("%Y%m%d")
+        url   = f"{API_BASE}/analytics/v2/reports/pages/total"
+        params = {"start": start, "end": end, "limit": 500}
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        breakdowns = data.get("breakdowns", [])
+        print(f"  ✓ Analytics API: {len(breakdowns)} pages returned", file=sys.stderr)
+        for page in breakdowns:
+            slug = page.get("breakdown", "")
+            if LANDING_PAGE_PATH in slug:
+                visits = page.get("sessions", page.get("pageviews", page.get("visits", 0)))
+                print(f"  ✓ Landing page '{slug}': {visits} sessions", file=sys.stderr)
+                return visits
+        print(f"  ! Landing page '{LANDING_PAGE_PATH}' not found in results — checking available pages:", file=sys.stderr)
+        for page in breakdowns[:5]:
+            print(f"    - {page.get('breakdown')} : {page.get('sessions', page.get('pageviews'))}", file=sys.stderr)
+        return None
+    except Exception as e:
+        print(f"  ✗ Landing page analytics error: {e}", file=sys.stderr)
+        return None
 
 
 def aggregate_deals(deals, stage_map):
@@ -206,6 +242,9 @@ def main():
         "last_updated": sequence_override.get("last_updated"),
     }
     print(f"  ✓ Sequence stats from manual overrides (updated: {sequence_override.get('last_updated')})", file=sys.stderr)
+
+    # Landing page visits (requires content scope)
+    result["landing_page_visits"] = fetch_landing_page_visits()
 
     print(json.dumps(result, indent=2))
 

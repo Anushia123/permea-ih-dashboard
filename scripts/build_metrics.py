@@ -97,15 +97,8 @@ def build():
     deals_created     = hubspot.get("deals_created",     0)
     deals_closed      = hubspot.get("deals_closed_h1",   0)
 
-    # Segment submissions: CIO is primary source (product sends event directly to CIO journey).
-    # Falls back to PostHog if CIO returned None (API error or event not yet tracked in CIO).
-    cio_segment = cio.get("segment_submissions")
-    if cio_segment is not None:
-        segment_submitted = cio_segment
-        print("  ✓ build: using CIO segment_submissions count", file=sys.stderr)
-    else:
-        segment_submitted = posthog.get("segment_submissions", 0)
-        print("  ! build: CIO segment_submissions unavailable — using PostHog fallback", file=sys.stderr)
+    # Segment submissions: PostHog is the source of truth — product sends event there first.
+    segment_submitted = posthog.get("segment_submissions", 0)
 
     now = datetime.now(timezone.utc).isoformat()
 

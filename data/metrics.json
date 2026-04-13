@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-13T01:51:00.362281+00:00",
+    "last_updated": "2026-04-13T08:35:42.218490+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-13",
@@ -19,9 +19,9 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 66,
-        "emails_opened": 27,
-        "open_rate": 40.9,
+        "emails_sent": 75,
+        "emails_opened": 29,
+        "open_rate": 38.7,
         "clicks": 0,
         "ctr": 0.0,
         "replies": 0,

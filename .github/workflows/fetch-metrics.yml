@@ -50,13 +50,10 @@ jobs:
       # ── 4. FETCH CUSTOMER.IO
       - name: Fetch Customer.io metrics
         if: ${{ github.event.inputs.force_sample_data != 'true' }}
-        env:
-          CIO_API_KEY: ${{ secrets.CIO_API_KEY }}
-          CIO_CAMPAIGN_NAME: "Insight Hub"
         run: |
           python scripts/fetch_cio.py > /tmp/ih_dash/cio.json
           echo "✓ Customer.io done"
-        continue-on-error: true   # don't fail whole run if one source errors
+        continue-on-error: true
 
       # ── 5. FETCH HUBSPOT
       - name: Fetch HubSpot metrics

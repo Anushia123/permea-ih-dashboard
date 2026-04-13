@@ -63,12 +63,6 @@
   .health-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   .sample-badge { background: rgba(245,197,66,0.15); color: var(--yellow); border: 1px solid rgba(245,197,66,0.3); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px; letter-spacing: 0.04em; }
 
-  /* ── SUMMARY BAR ── */
-  .summary-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: var(--navy-border); border-bottom: 1px solid var(--navy-border); }
-  .summary-item { background: var(--navy-mid); padding: 18px 24px; text-align: center; }
-  .summary-item .val { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
-  .summary-item .label { font-size: 11px; color: var(--text-muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
-  .summary-item .sub { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
 
   /* ── LAYOUT ── */
   .layout { display: grid; grid-template-columns: 1fr; gap: 0; min-height: calc(100vh - 130px); }
@@ -231,13 +225,6 @@
   </div>
 </header>
 
-<div class="summary-bar">
-  <div class="summary-item"><div class="val" id="sum-sent">—</div><div class="label">Total Sent</div><div class="sub">Lemlist + HubSpot</div></div>
-  <div class="summary-item"><div class="val" id="sum-signups">—</div><div class="label">Email Open Rate</div><div class="sub">Lemlist bulk outreach</div></div>
-  <div class="summary-item"><div class="val" id="sum-activation">—</div><div class="label">Verified Sign-Ups</div><div class="sub">Total campaign to date</div></div>
-  <div class="summary-item"><div class="val" id="sum-segments">—</div><div class="label">Market Def. Rate</div><div class="sub">Of activated users</div></div>
-  <div class="summary-item"><div class="val" id="sum-deals">—</div><div class="label">Deals in Pipeline</div><div class="sub">H1 target: 5–7</div></div>
-</div>
 
 <div class="funnel-bar">
   <div class="funnel-bar-label">Campaign Funnel Overview — click any step to jump to that gate</div>
@@ -561,14 +548,7 @@ function renderDashboard(d) {
     new Date(d.meta.period_start).toLocaleDateString('en-GB', {day:'2-digit', month:'short'}) + ' – ' +
     new Date(d.meta.period_end).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
 
-  // Summary — 5-card mini-funnel: Sent → Open Rate → Sign-Ups → Market Def Rate → Deals
-  document.getElementById('sum-sent').textContent       = (d.gate1.channels.lemlist.emails_sent||0) + (d.gate1.channels.hubspot.emails_sent||0);
-  document.getElementById('sum-signups').textContent    = fmt(eff('lemlist_open_rate', d.gate1.channels.lemlist.open_rate), '%');
-  document.getElementById('sum-activation').textContent = eff('verified_signups', d.gate2.verified_signups) ?? '—';
-  document.getElementById('sum-segments').textContent   = fmt(eff('sub_from_activation', d.gate4.submission_rate_from_activation), '%');
-  document.getElementById('sum-deals').textContent      = (eff('deals_created', d.gate5.deals_created) ?? '—') + ' / 5+';
-
-  // Dynamic overall health (Gap 11)
+// Dynamic overall health (Gap 11)
   const health = computeOverallHealth(d);
   const healthEl = document.getElementById('overall-health');
   healthEl.className = 'overall-health ' + health;
@@ -642,9 +622,8 @@ function renderDashboard(d) {
 
   // ── GATE 3
   const g3 = d.gate3;
-  document.getElementById('g3-metrics').innerHTML = [
-    metricCard({ id:'activation_rate', label:'Activation Rate (7-day)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, extraInfo:`${g3.activated_users ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.activation_rate }),
-  ].join('');
+  // Activation Rate removed — activation and market definition submission are the same cohort at current scale.
+  // Gate 3 retains the week-over-week retention chart for trend tracking.
 
   if (retentionChartInst) retentionChartInst.destroy();
   retentionChartInst = new Chart(document.getElementById('retention-chart').getContext('2d'), {
@@ -660,8 +639,7 @@ function renderDashboard(d) {
   const g4 = d.gate4;
   // Gap 4: submission from_signup = neutral (no benchmark); from_activation = uses segment_submission_rate benchmark
   document.getElementById('g4-metrics').innerHTML = [
-    metricCard({ id:'sub_from_signup',     label:'Market Def. Rate (from sign-up)',    apiValue:g4.submission_rate_from_signup,    suffix:'%', neutral:true,                                      extraInfo:`${g4.segment_submissions ?? '—'} of ${eff('verified_signups',g2.verified_signups) ?? '—'} verified sign-ups`, tooltip:TOOLTIPS.sub_from_signup }),
-    metricCard({ id:'sub_from_activation', label:'Market Def. Rate (from activation)', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
+    metricCard({ id:'sub_from_activation', label:'Market Def. Rate', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
   ].join('');
 
   // Gate 4 — PTA nurture emails

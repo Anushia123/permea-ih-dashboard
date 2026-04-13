@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-13T08:35:42.218490+00:00",
+    "last_updated": "2026-04-13T08:52:23.059894+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-13",
@@ -19,9 +19,9 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 75,
+        "emails_sent": 86,
         "emails_opened": 29,
-        "open_rate": 38.7,
+        "open_rate": 33.7,
         "clicks": 0,
         "ctr": 0.0,
         "replies": 0,
@@ -39,20 +39,6 @@
         "replies": null,
         "bounced": null,
         "unsubscribed": 0
-      },
-      "linkedin": {
-        "label": "LinkedIn Paid",
-        "impressions": null,
-        "clicks": null,
-        "ctr": null,
-        "cost_per_click": null,
-        "conversions": null,
-        "spend": null,
-        "status": "pending_oauth"
-      },
-      "google": {
-        "label": "Google Paid",
-        "status": "deferred"
       },
       "organic": {
         "label": "Organic",
@@ -159,11 +145,6 @@
       "conservative": 2,
       "realistic": 4,
       "optimal": 7
-    },
-    "linkedin_ctr": {
-      "conservative": 0.3,
-      "realistic": 0.5,
-      "optimal": 0.6
     },
     "landing_page_cvr": {
       "conservative": 15,

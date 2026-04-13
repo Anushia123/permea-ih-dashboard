@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-13T01:03:47.636026+00:00",
+    "last_updated": "2026-04-13T08:35:42.218490+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-13",
@@ -11,7 +11,7 @@
     "activation_rate": 100.0,
     "segment_submissions": 3,
     "deals_in_pipeline": 0,
-    "overall_health": "red"
+    "overall_health": "yellow"
   },
   "gate1": {
     "name": "Messaging & Reach",
@@ -19,9 +19,9 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 66,
-        "emails_opened": 27,
-        "open_rate": 40.9,
+        "emails_sent": 75,
+        "emails_opened": 29,
+        "open_rate": 38.7,
         "clicks": 0,
         "ctr": 0.0,
         "replies": 0,
@@ -29,14 +29,15 @@
         "unsubscribed": 0
       },
       "hubspot": {
-        "label": "HubSpot Email (Tier 1 Personal)",
-        "emails_sent": 0,
+        "label": "HubSpot Sequence (Warm Outreach)",
+        "enrolled": 157,
+        "emails_sent": 157,
         "emails_opened": 0,
-        "open_rate": 0,
+        "open_rate": 0.0,
         "clicks": 0,
         "ctr": 0,
-        "replies": 0,
-        "bounced": 0,
+        "replies": null,
+        "bounced": null,
         "unsubscribed": 0
       },
       "linkedin": {
@@ -120,9 +121,9 @@
   },
   "benchmarks": {
     "email_open_rate": {
-      "conservative": 60,
-      "realistic": 65,
-      "optimal": 70
+      "conservative": 25,
+      "realistic": 30,
+      "optimal": 35
     },
     "email_ctr": {
       "conservative": 25,

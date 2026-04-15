@@ -1,9 +1,9 @@
 {
   "meta": {
-    "last_updated": "2026-04-14T10:50:33.749592+00:00",
+    "last_updated": "2026-04-15T07:19:03.028784+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-14",
+    "period_end": "2026-04-15",
     "is_sample_data": false
   },
   "summary": {
@@ -19,13 +19,13 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 135,
-        "emails_opened": 51,
-        "open_rate": 37.8,
-        "clicks": 2,
-        "ctr": 3.9,
+        "emails_sent": 145,
+        "emails_opened": 55,
+        "open_rate": 37.9,
+        "clicks": 4,
+        "ctr": 7.3,
         "replies": 0,
-        "bounced": 16,
+        "bounced": 17,
         "unsubscribed": 0
       },
       "hubspot": {
@@ -33,7 +33,7 @@
         "enrolled": 111,
         "emails_sent": 111,
         "emails_opened": 0,
-        "open_rate": 0.0,
+        "open_rate": 23.42,
         "clicks": 0,
         "ctr": 0,
         "replies": null,
@@ -92,12 +92,12 @@
     "submission_rate_from_signup": 60.0,
     "submission_rate_from_activation": 60.0,
     "cio_nurture": {
-      "sent": 5,
+      "sent": 7,
       "opened": 4,
       "clicked": 2,
-      "open_rate": 80.0,
-      "ctr": 40.0,
-      "last_updated": "2026-04-13"
+      "open_rate": 57.14,
+      "ctr": 28.57,
+      "last_updated": "2026-04-14"
     }
   },
   "gate5": {
@@ -119,7 +119,7 @@
         "clicked": 0,
         "open_rate": 0.0,
         "ctr": 0.0,
-        "last_updated": "2026-04-13"
+        "last_updated": "2026-04-14"
       },
       "urgency_journey": {
         "sent": 0,
@@ -127,7 +127,7 @@
         "clicked": 0,
         "open_rate": 0.0,
         "ctr": 0.0,
-        "last_updated": "2026-04-13"
+        "last_updated": "2026-04-14"
       }
     }
   },

@@ -1,13 +1,13 @@
 {
   "meta": {
-    "last_updated": "2026-04-13T11:11:11.788916+00:00",
+    "last_updated": "2026-04-14T10:50:33.749592+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-13",
+    "period_end": "2026-04-14",
     "is_sample_data": false
   },
   "summary": {
-    "total_verified_signups": 3,
+    "total_verified_signups": 5,
     "activation_rate": 100.0,
     "segment_submissions": 3,
     "deals_in_pipeline": 0,
@@ -19,13 +19,13 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 105,
-        "emails_opened": 35,
-        "open_rate": 33.3,
-        "clicks": 0,
-        "ctr": 0.0,
+        "emails_sent": 135,
+        "emails_opened": 51,
+        "open_rate": 37.8,
+        "clicks": 2,
+        "ctr": 3.9,
         "replies": 0,
-        "bounced": 11,
+        "bounced": 16,
         "unsubscribed": 0
       },
       "hubspot": {
@@ -56,7 +56,7 @@
     "name": "Sign-Up & Account Creation",
     "owner": "Marketing + Product",
     "signup_page_visits": null,
-    "verified_signups": 3,
+    "verified_signups": 5,
     "signup_conversion_rate": null,
     "signups_by_source": {
       "customer_io": null,
@@ -69,10 +69,10 @@
   "gate3": {
     "name": "Onboarding & Activation",
     "owner": "Product + Marketing",
-    "verified_signups": 3,
+    "verified_signups": 5,
     "logged_in_within_48h": 0,
     "login_48h_rate": 0.0,
-    "activated_users": 3,
+    "activated_users": 5,
     "activation_rate_7day": 100.0,
     "weekly_retention": {
       "week1": 100.0,
@@ -86,11 +86,11 @@
   "gate4": {
     "name": "Market Monitor Submission",
     "owner": "Product",
-    "verified_signups": 3,
-    "activated_users": 3,
+    "verified_signups": 5,
+    "activated_users": 5,
     "segment_submissions": 3,
-    "submission_rate_from_signup": 100.0,
-    "submission_rate_from_activation": 100.0,
+    "submission_rate_from_signup": 60.0,
+    "submission_rate_from_activation": 60.0,
     "cio_nurture": {
       "sent": 5,
       "opened": 4,

@@ -236,10 +236,11 @@ def main():
     # Sequence stats (open rate, reply rate) — always from manual_overrides.json
     # HubSpot Sequences API has no statistics endpoints.
     result["sequence_stats"] = {
-        "emails_sent": sequence_override.get("emails_sent", 0),
-        "open_rate":   sequence_override.get("open_rate",   0.0),
-        "click_rate":  sequence_override.get("click_rate",  0.0),
-        "reply_rate":  sequence_override.get("reply_rate",  0.0),
+        "emails_sent":  sequence_override.get("emails_sent",  0),
+        "open_rate":    sequence_override.get("open_rate",    0.0),
+        "click_rate":   sequence_override.get("click_rate",   0.0),
+        "reply_rate":   sequence_override.get("reply_rate",   0.0),
+        "bounce_rate":  sequence_override.get("bounce_rate",  0.0),
         "last_updated": sequence_override.get("last_updated"),
     }
     print(f"  ✓ Sequence stats from manual overrides (updated: {sequence_override.get('last_updated')})", file=sys.stderr)

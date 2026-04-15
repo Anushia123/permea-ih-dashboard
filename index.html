@@ -124,6 +124,9 @@
   .tooltip-text { display: none; position: absolute; right: 0; top: 18px; width: 220px; background: #1f3147; border: 1px solid var(--navy-border); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text-muted); line-height: 1.4; z-index: 300; box-shadow: 0 4px 16px rgba(0,0,0,0.4); font-style: normal; text-transform: none; letter-spacing: 0; }
   .info-icon:hover .tooltip-text { display: block; }
 
+  /* Pipeline section title */
+  .pipeline-title { display: flex; align-items: center; gap: 6px; }
+
   /* Edit icon (Gap 1) */
   .edit-icon { font-size: 11px; color: var(--text-dim); cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: color 0.12s, background 0.12s; }
   .edit-icon:hover { color: var(--blue-light); background: rgba(45,125,210,0.15); }
@@ -285,8 +288,13 @@
       <div class="metric-grid" id="g5-metrics"></div>
       <div class="section-title">Nurture Emails — CIO Journeys</div>
       <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g5-cio-table"></tbody></table>
-      <div class="section-title">HubSpot Deal Pipeline</div>
-      <table class="data-table"><thead><tr><th>Stage</th><th class="num">Deals</th><th>Notes</th></tr></thead><tbody id="g5-pipeline-body"></tbody></table>
+      <div class="section-title pipeline-title">
+        HubSpot Deal Pipeline
+        <span class="info-icon">ℹ<span class="tooltip-text">Deals in HubSpot CRM where the deal name contains 'Insight Hub Free Trial'. Stages and counts reflect live HubSpot data. Commercial team has been asked to name deals related to this campaign accordingly.</span></span>
+      </div>
+      <div id="g5-pipeline-cards" style="margin-bottom:24px;">
+        <div class="metric-grid" id="g5-stage-cards"></div>
+      </div>
       <div class="chart-wrap"><h3>H1 Deal Close Progress vs. Targets</h3><div class="chart-container" style="height:150px;"><canvas id="deals-chart"></canvas></div></div>
     </div>
   </div>
@@ -668,10 +676,15 @@ function renderDashboard(d) {
     cioRow('Core Journey', '(activated users → see value → convert)', cj) +
     cioRow('Urgency Journey', '(last-days push → deal close)', uj);
 
-  const stageLabels = { qualified:'Qualified', evaluation:'Evaluation', proposal:'Proposal', closed_won:'Closed Won' };
-  document.getElementById('g5-pipeline-body').innerHTML = Object.entries(g5.deals_by_stage||{}).map(([k,v]) =>
-    `<tr><td>${stageLabels[k]||k}</td><td class="num">${v}</td><td>${k==='closed_won'&&v===0?'H1 goal: '+g5.h1_goal+'+':''}</td></tr>`).join('') ||
-    '<tr><td colspan="3" style="color:var(--text-dim)">No deals logged yet — commercial team to create deals with "Insight Hub Free Trial" in the name.</td></tr>';
+  const stageOrder = ['Problem Discovery','Solution Validation','Lead','Closed Won'];
+  const byStage = g5.deals_by_stage || {};
+  const closedWon = g5.deals_closed_h1 || 0;
+  const stageCards = stageOrder.map(stage => {
+    const count = stage === 'Closed Won' ? closedWon : (byStage[stage] ?? 0);
+    const extra = stage === 'Closed Won' ? `<div class="metric-target">H1 goal: <strong>${g5.h1_goal}+</strong></div>` : '';
+    return `<div class="metric-card neutral"><div class="card-header"><div class="metric-label">${stage}</div></div><div class="metric-value">${count}</div>${extra}</div>`;
+  }).join('');
+  document.getElementById('g5-stage-cards').innerHTML = stageCards;
 
   if (dealsChartInst) dealsChartInst.destroy();
   dealsChartInst = new Chart(document.getElementById('deals-chart').getContext('2d'), {

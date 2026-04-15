@@ -145,7 +145,7 @@ def build():
                     "emails_opened":0,
                     "open_rate":    hs_seq.get("open_rate",   0.0),
                     "clicks":       0,
-                    "ctr":          0,
+                    "ctr":          hs_seq.get("click_rate", 0.0),
                     "replies":      None,
                     "bounced":      None,
                     "unsubscribed": 0,

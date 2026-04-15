@@ -146,8 +146,8 @@ def build():
                     "open_rate":    hs_seq.get("open_rate",   0.0),
                     "clicks":       0,
                     "ctr":          hs_seq.get("click_rate", 0.0),
-                    "replies":      hs_seq.get("reply_rate",  0.0),
-                    "bounced":      hs_seq.get("bounce_rate", 0.0),
+                    "replies":      hs_seq.get("replies",  None),
+                    "bounced":      hs_seq.get("bounced",  None),
                     "unsubscribed": 0,
                 },
                 "organic": {

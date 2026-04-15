@@ -240,7 +240,8 @@ def main():
         "open_rate":    sequence_override.get("open_rate",    0.0),
         "click_rate":   sequence_override.get("click_rate",   0.0),
         "reply_rate":   sequence_override.get("reply_rate",   0.0),
-        "bounce_rate":  sequence_override.get("bounce_rate",  0.0),
+        "replies":      sequence_override.get("replies",      None),
+        "bounced":      sequence_override.get("bounced",      None),
         "last_updated": sequence_override.get("last_updated"),
     }
     print(f"  ✓ Sequence stats from manual overrides (updated: {sequence_override.get('last_updated')})", file=sys.stderr)

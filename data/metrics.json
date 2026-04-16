@@ -1,17 +1,17 @@
 {
   "meta": {
-    "last_updated": "2026-04-15T10:45:16.430935+00:00",
+    "last_updated": "2026-04-16T10:49:00.727160+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-15",
+    "period_end": "2026-04-16",
     "is_sample_data": false
   },
   "summary": {
-    "total_verified_signups": 0,
-    "activation_rate": 0,
-    "segment_submissions": 0,
+    "total_verified_signups": 6,
+    "activation_rate": 83.3,
+    "segment_submissions": 3,
     "deals_in_pipeline": 11,
-    "overall_health": "red"
+    "overall_health": "green"
   },
   "gate1": {
     "name": "Messaging & Reach",
@@ -19,11 +19,11 @@
     "channels": {
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
-        "emails_sent": 157,
-        "emails_opened": 65,
-        "open_rate": 41.4,
+        "emails_sent": 159,
+        "emails_opened": 67,
+        "open_rate": 42.1,
         "clicks": 10,
-        "ctr": 15.4,
+        "ctr": 14.9,
         "replies": 0,
         "bounced": 19,
         "unsubscribed": 0
@@ -56,7 +56,7 @@
     "name": "Sign-Up & Account Creation",
     "owner": "Marketing + Product",
     "signup_page_visits": null,
-    "verified_signups": 0,
+    "verified_signups": 6,
     "signup_conversion_rate": null,
     "signups_by_source": {
       "customer_io": null,
@@ -69,13 +69,13 @@
   "gate3": {
     "name": "Onboarding & Activation",
     "owner": "Product + Marketing",
-    "verified_signups": 0,
+    "verified_signups": 6,
     "logged_in_within_48h": 0,
-    "login_48h_rate": 0,
-    "activated_users": 0,
-    "activation_rate_7day": 0,
+    "login_48h_rate": 0.0,
+    "activated_users": 5,
+    "activation_rate_7day": 83.3,
     "weekly_retention": {
-      "week1": 0,
+      "week1": 83.3,
       "week2": null,
       "week3": null,
       "week4": null,
@@ -86,11 +86,11 @@
   "gate4": {
     "name": "Market Monitor Submission",
     "owner": "Product",
-    "verified_signups": 0,
-    "activated_users": 0,
-    "segment_submissions": 0,
-    "submission_rate_from_signup": 0,
-    "submission_rate_from_activation": 0,
+    "verified_signups": 6,
+    "activated_users": 5,
+    "segment_submissions": 3,
+    "submission_rate_from_signup": 50.0,
+    "submission_rate_from_activation": 60.0,
     "cio_nurture": {
       "sent": 7,
       "opened": 4,
@@ -103,9 +103,9 @@
   "gate5": {
     "name": "Commercial Conversion",
     "owner": "Commercial (Ludger, Dennis, Max)",
-    "segment_submissions": 0,
+    "segment_submissions": 3,
     "cta_clicks_inapp": 1,
-    "commercial_touch_rate": 100.0,
+    "commercial_touch_rate": 33.3,
     "sales_followup_within_1day": null,
     "sales_followup_rate": null,
     "deals_created": 11,

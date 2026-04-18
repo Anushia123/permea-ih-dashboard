@@ -1,17 +1,17 @@
 {
   "meta": {
-    "last_updated": "2026-04-17T10:39:58.694706+00:00",
+    "last_updated": "2026-04-18T09:34:44.451843+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-17",
+    "period_end": "2026-04-18",
     "is_sample_data": false
   },
   "summary": {
     "total_verified_signups": 7,
     "activation_rate": 85.7,
-    "segment_submissions": 3,
+    "segment_submissions": 4,
     "deals_in_pipeline": 11,
-    "overall_health": "yellow"
+    "overall_health": "green"
   },
   "gate1": {
     "name": "Messaging & Reach",
@@ -88,9 +88,9 @@
     "owner": "Product",
     "verified_signups": 7,
     "activated_users": 6,
-    "segment_submissions": 3,
-    "submission_rate_from_signup": 42.9,
-    "submission_rate_from_activation": 50.0,
+    "segment_submissions": 4,
+    "submission_rate_from_signup": 57.1,
+    "submission_rate_from_activation": 66.7,
     "cio_nurture": {
       "sent": 7,
       "opened": 4,
@@ -103,9 +103,9 @@
   "gate5": {
     "name": "Commercial Conversion",
     "owner": "Commercial (Ludger, Dennis, Max)",
-    "segment_submissions": 3,
+    "segment_submissions": 4,
     "cta_clicks_inapp": 1,
-    "commercial_touch_rate": 33.3,
+    "commercial_touch_rate": 25.0,
     "sales_followup_within_1day": null,
     "sales_followup_rate": null,
     "deals_created": 11,

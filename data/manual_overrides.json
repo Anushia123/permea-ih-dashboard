@@ -4,12 +4,12 @@
     "_note": "HubSpot Sequences API has no statistics endpoints. Update from HubSpot > Sales > Sequences > Performance tab.",
     "enrolled": 111,
     "emails_sent": 111,
-    "open_rate": 23.42,
-    "click_rate": 11.5,
-    "reply_rate": 0.9,
-    "replies": 1,
+    "open_rate": 35.14,
+    "click_rate": 17.9,
+    "reply_rate": 1.8,
+    "replies": 3,
     "bounced": 2,
-    "last_updated": "2026-04-14"
+    "last_updated": "2026-04-20"
   },
   "cio_journeys": {
     "_note": "CIO App API does not expose journey campaign metrics. Update from CIO > Campaigns > select campaign > Overview tab. Update weekly.",

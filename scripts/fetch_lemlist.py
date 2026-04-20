@@ -53,6 +53,7 @@ def get_campaign_stats(campaign_id, campaign_name):
             "startDate": DATE_FROM,
             "endDate":   DATE_TO,
         })
+        print(f"  [debug] stats keys for '{campaign_name}': {list(data.keys())}", file=sys.stderr)
         stats = {
             "sent":         int(data.get("messagesSent",        0)),
             "opened":       int(data.get("opened",              0)),
@@ -60,8 +61,9 @@ def get_campaign_stats(campaign_id, campaign_name):
             "replied":      int(data.get("replied",             0)),
             "bounced":      int(data.get("messagesBounced",     0)),
             "unsubscribed": int(data.get("nbLeadsUnsubscribed", 0)),
+            "leads_total":  int(data.get("nbLeads", 0) or data.get("leadsCount", 0) or data.get("nbLeadsTotal", 0)),
         }
-        print(f"  ✓ '{campaign_name}': sent={stats['sent']}, opened={stats['opened']}, "
+        print(f"  ✓ '{campaign_name}': sent={stats['sent']}, leads_total={stats['leads_total']}, opened={stats['opened']}, "
               f"clicked={stats['clicked']}, replied={stats['replied']}", file=sys.stderr)
         return stats
 
@@ -104,22 +106,21 @@ def main():
     ]
     excluded = [c.get("name") for c in ih_campaigns_all if c not in ih_campaigns]
 
-    # Total leads enrolled across active campaigns only
-    total_enrolled = sum(
-        c.get("leadsCount") or c.get("nbLeads") or 0
-        for c in ih_campaigns
-    )
+    # total_enrolled computed after stats fetch below — placeholder here
+    total_enrolled = 0
 
     if not ih_campaigns_all:
         print(f"  ! No campaigns matching '{CAMPAIGN_FILTER}'", file=sys.stderr)
         print(f"  ! Available: {all_names}", file=sys.stderr)
     else:
-        print(f"  ✓ Matched {len(ih_campaigns_all)} campaigns, {len(ih_campaigns)} active (enrolled: {total_enrolled}), {len(excluded)} excluded: {excluded}", file=sys.stderr)
+        if ih_campaigns:
+            print(f"  [debug] campaign object keys: {list(ih_campaigns[0].keys())}", file=sys.stderr)
+        print(f"  ✓ Matched {len(ih_campaigns_all)} campaigns, {len(ih_campaigns)} active, {len(excluded)} excluded: {excluded}", file=sys.stderr)
 
     totals = {
         "source":         "lemlist",
         "fetched_at":     datetime.now(timezone.utc).isoformat(),
-        "total_enrolled": total_enrolled,
+        "total_enrolled": total_enrolled if total_enrolled > 0 else None,
         "sent":           0,
         "opened":         0,
         "clicked":        0,
@@ -141,6 +142,7 @@ def main():
         totals["replied"]      += stats["replied"]
         totals["bounced"]      += stats["bounced"]
         totals["unsubscribed"] += stats["unsubscribed"]
+        total_enrolled         += stats.get("leads_total", 0)
 
         totals["campaigns"].append({
             "name":       name,

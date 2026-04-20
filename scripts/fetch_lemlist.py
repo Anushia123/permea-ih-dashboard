@@ -149,6 +149,8 @@ def main():
             "reply_rate": round((stats["replied"] / max(stats["sent"],   1)) * 100, 1),
         })
 
+    totals["total_enrolled"] = total_enrolled if total_enrolled > 0 else None
+
     # ── Step 3: compute aggregate rates
     if totals["sent"] > 0:
         totals["open_rate"]  = round((totals["opened"]  / totals["sent"])            * 100, 1)

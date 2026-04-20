@@ -272,8 +272,10 @@
     <!-- GATE 3 -->
     <div class="gate-panel" id="panel-gate3">
       <div class="gate-header"><div class="gate-title">Gate 3 — Onboarding &amp; Activation</div><span class="gate-owner">Owner: Product + Marketing</span></div>
-      <p class="gate-desc">Did users come back and experience value? Activated = at least one widget interaction within 7 days.</p>
+      <p class="gate-desc">Did users experience value? Activation = first meaningful engagement within 7 days. CIO nurture emails (PTA Push-to-Activate and Core Journey) are the primary levers driving users through this stage.</p>
       <div class="metric-grid" id="g3-metrics"></div>
+      <div class="section-title">Nurture Emails — CIO Journeys</div>
+      <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g3-cio-table"></tbody></table>
       <div class="chart-wrap"><h3>Week-over-Week Retention (Activated Users)</h3><div class="chart-container"><canvas id="retention-chart"></canvas></div></div>
     </div>
 
@@ -282,8 +284,6 @@
       <div class="gate-header"><div class="gate-title">Gate 4 — Market Monitor Submission</div><span class="gate-owner">Owner: Product</span></div>
       <p class="gate-desc">Did users submit their market definition — the action that makes Insight Hub personalised for them?</p>
       <div class="metric-grid" id="g4-metrics"></div>
-      <div class="section-title">Nurture Emails — PTA Journey</div>
-      <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g4-cio-table"></tbody></table>
     </div>
 
     <!-- GATE 5 -->
@@ -372,6 +372,7 @@ const TOOLTIPS = {
   login_48h:           'Of verified sign-ups, how many logged in within 2 days of creating their account. Low = welcome email or first-login motivation is not working.',
   activation_rate:     'Of verified sign-ups, how many clicked at least one data widget within their first 7 days. This is the agreed activation definition (confirmed by Lisa). Benchmark: 60–75%.',
   activated_users:     'Total count of users who hit the activation milestone (≥1 widget click in first 7 days).',
+  week1_retention:     'Of activated users, how many returned and engaged again in the second week (Week 1 after activation). Early signal of sticky behaviour.',
   sub_from_signup:     'Of all verified sign-ups, how many submitted a market definition. Shows overall funnel health from top to this step. No fixed benchmark — use as a trend metric.',
   sub_from_activation: 'Of users who already activated (found value), how many went on to submit their market definition. This is the product\'s core action. Benchmark: 40–55% of activated users.',
   total_segments:      'Raw count of market definition submissions received. Feeds Gate 5 commercial handoffs.',
@@ -644,10 +645,29 @@ function renderDashboard(d) {
         `<tr><td>${srcLabels[k]||k}</td><td class="num">${v ?? '—'}</td><td class="num">${v !== null ? ((v/totalSU)*100).toFixed(1)+'%' : '—'}</td></tr>`).join('')
     : '<tr><td colspan="3" style="color:var(--text-dim)">Pending UTM tracking setup — source breakdown will appear once UTMs are captured on sign-up events.</td></tr>';
 
+  // Shared helper — used in Gate 3 and Gate 5
+  function cioRow(label, hint, data) {
+    if (!data) return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num" colspan="3" style="color:var(--text-dim)">—</td></tr>`;
+    return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num">${data.sent ?? '—'}</td><td class="num"><span class="rag-dot ${rag(data.open_rate, bm.email_open_rate)}"></span>${fmt(data.open_rate,'%')}</td><td class="num"><span class="rag-dot ${rag(data.ctr, bm.email_ctr)}"></span>${fmt(data.ctr,'%')}</td></tr>`;
+  }
+
   // ── GATE 3
   const g3 = d.gate3;
-  // Activation Rate removed — activation and market definition submission are the same cohort at current scale.
-  // Gate 3 retains the week-over-week retention chart for trend tracking.
+  document.getElementById('g3-metrics').innerHTML = [
+    metricCard({ id:'activated_users',    label:'Activated Users',      apiValue:g3.activated_users,      neutral:true, extraInfo:'First widget interaction ≤7 days', tooltip:TOOLTIPS.activated_users }),
+    metricCard({ id:'activation_rate',    label:'Activation Rate (7d)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, extraInfo:`${g3.activated_users ?? '—'} of ${g3.verified_signups ?? '—'} sign-ups`, tooltip:TOOLTIPS.activation_rate }),
+    metricCard({ id:'week1_retention',    label:'Week 1 Retention',     apiValue:g3.weekly_retention?.week1, suffix:'%', neutral:true, tooltip:TOOLTIPS.week1_retention }),
+  ].join('');
+
+  // Gate 3 — CIO nurture emails: PTA + Core Journey (activation-stage journeys)
+  const g3cio = g3;
+  // CIO journey data is in gate4.cio_nurture (PTA) and gate5.cio_nurture (core_journey/urgency)
+  // We read from the source gates but display here in Gate 3
+  const ptaData  = d.gate4?.cio_nurture;
+  const cjData   = d.gate5?.cio_nurture?.core_journey;
+  document.getElementById('g3-cio-table').innerHTML =
+    cioRow('PTA Journey',   '(push-to-activate → first engagement → market definition)', ptaData) +
+    cioRow('Core Journey',  '(activated users → explore value → convert)',               cjData);
 
   if (retentionChartInst) retentionChartInst.destroy();
   retentionChartInst = new Chart(document.getElementById('retention-chart').getContext('2d'), {
@@ -661,16 +681,9 @@ function renderDashboard(d) {
 
   // ── GATE 4
   const g4 = d.gate4;
-  // Gap 4: submission from_signup = neutral (no benchmark); from_activation = uses segment_submission_rate benchmark
   document.getElementById('g4-metrics').innerHTML = [
     metricCard({ id:'sub_from_activation', label:'Market Def. Rate', apiValue:g4.submission_rate_from_activation, suffix:'%', benchmarkKey:'segment_submission_rate', benchmarks:bm, extraInfo:`${g4.segment_submissions ?? '—'} of ${g4.activated_users ?? '—'} activated users`, tooltip:TOOLTIPS.sub_from_activation }),
   ].join('');
-
-  // Gate 4 — PTA nurture emails
-  const g4pta = g4.cio_nurture;
-  document.getElementById('g4-cio-table').innerHTML = g4pta
-    ? `<tr><td>PTA Journey <span style="font-size:11px;color:var(--text-dim)">(activating demo users → submit market definition)</span></td><td class="num">${g4pta.sent ?? '—'}</td><td class="num"><span class="rag-dot ${rag(g4pta.open_rate, bm.email_open_rate)}"></span>${fmt(g4pta.open_rate,'%')}</td><td class="num"><span class="rag-dot ${rag(g4pta.ctr, bm.email_ctr)}"></span>${fmt(g4pta.ctr,'%')}</td></tr>`
-    : '<tr><td colspan="4" style="color:var(--text-dim)">CIO_API_KEY not yet connected — no data.</td></tr>';
 
   // ── GATE 5
   const g5 = d.gate5;
@@ -680,16 +693,10 @@ function renderDashboard(d) {
     metricCard({ id:'deals_closed',     label:'Deals Closed H1',         apiValue:g5.deals_closed_h1,       neutral:true, extraInfo:`Target: ${g5.h1_goal}+`, tooltip:TOOLTIPS.deals_closed }),
   ].join('');
 
-  // Gate 5 — CIO nurture emails (Core Journey + Urgency)
+  // Gate 5 — CIO nurture: Urgency Journey only (last-stage push before deal close)
   const g5cio = g5.cio_nurture || {};
-  const cj  = g5cio.core_journey;
-  const uj  = g5cio.urgency_journey;
-  function cioRow(label, hint, data) {
-    if (!data) return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num" colspan="3" style="color:var(--text-dim)">—</td></tr>`;
-    return `<tr><td>${label} <span style="font-size:11px;color:var(--text-dim)">${hint}</span></td><td class="num">${data.sent ?? '—'}</td><td class="num"><span class="rag-dot ${rag(data.open_rate, bm.email_open_rate)}"></span>${fmt(data.open_rate,'%')}</td><td class="num"><span class="rag-dot ${rag(data.ctr, bm.email_ctr)}"></span>${fmt(data.ctr,'%')}</td></tr>`;
-  }
+  const uj = g5cio.urgency_journey;
   document.getElementById('g5-cio-table').innerHTML =
-    cioRow('Core Journey', '(activated users → see value → convert)', cj) +
     cioRow('Urgency Journey', '(last-days push → deal close)', uj);
 
   const stageOrder = ['Problem Discovery','Solution Validation','Lead','Closed Won'];

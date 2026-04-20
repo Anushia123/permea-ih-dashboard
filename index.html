@@ -276,7 +276,6 @@
       <div class="metric-grid" id="g3-metrics"></div>
       <div class="section-title">Nurture Emails — CIO Journeys</div>
       <table class="data-table"><thead><tr><th>Journey</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th></tr></thead><tbody id="g3-cio-table"></tbody></table>
-      <div class="chart-wrap"><h3>Week-over-Week Retention (Activated Users)</h3><div class="chart-container"><canvas id="retention-chart"></canvas></div></div>
     </div>
 
     <!-- GATE 4 -->
@@ -551,7 +550,6 @@ function computeOverallHealth(d) {
 // ─────────────────────────────────────────────────────────────────────────────
 // MAIN RENDER
 // ─────────────────────────────────────────────────────────────────────────────
-let retentionChartInst = null;
 let dealsChartInst = null;
 
 function renderDashboard(d) {
@@ -656,7 +654,6 @@ function renderDashboard(d) {
   document.getElementById('g3-metrics').innerHTML = [
     metricCard({ id:'activated_users',    label:'Activated Users',      apiValue:g3.activated_users,      neutral:true, extraInfo:'First widget interaction ≤7 days', tooltip:TOOLTIPS.activated_users }),
     metricCard({ id:'activation_rate',    label:'Activation Rate (7d)', apiValue:g3.activation_rate_7day, suffix:'%', benchmarkKey:'activation_rate', benchmarks:bm, extraInfo:`${g3.activated_users ?? '—'} of ${g3.verified_signups ?? '—'} sign-ups`, tooltip:TOOLTIPS.activation_rate }),
-    metricCard({ id:'week1_retention',    label:'Week 1 Retention',     apiValue:g3.weekly_retention?.week1, suffix:'%', neutral:true, tooltip:TOOLTIPS.week1_retention }),
   ].join('');
 
   // Gate 3 — CIO nurture emails: PTA + Core Journey (activation-stage journeys)
@@ -668,16 +665,6 @@ function renderDashboard(d) {
   document.getElementById('g3-cio-table').innerHTML =
     cioRow('PTA Journey',   '(push-to-activate → first engagement → market definition)', ptaData) +
     cioRow('Core Journey',  '(activated users → explore value → convert)',               cjData);
-
-  if (retentionChartInst) retentionChartInst.destroy();
-  retentionChartInst = new Chart(document.getElementById('retention-chart').getContext('2d'), {
-    type:'line',
-    data:{
-      labels:['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6'],
-      datasets:[{ label:'Retention %', data:Object.values(g3.weekly_retention||{}), borderColor:'#2d7dd2', backgroundColor:'rgba(45,125,210,0.1)', borderWidth:2, pointBackgroundColor:'#2d7dd2', pointRadius:5, tension:0.3, spanGaps:false }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false } }, scales:{ y:{ min:0, max:100, ticks:{ color:'#8aa3bd', callback:v=>v+'%' }, grid:{ color:'#253d57' } }, x:{ ticks:{ color:'#8aa3bd' }, grid:{ color:'#253d57' } } } }
-  });
 
   // ── GATE 4
   const g4 = d.gate4;

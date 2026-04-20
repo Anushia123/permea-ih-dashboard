@@ -248,9 +248,10 @@
     <div class="gate-panel active" id="panel-gate1">
       <div class="gate-header"><div class="gate-title">Gate 1 — Messaging &amp; Reach</div><span class="gate-owner">Owner: Marketing</span></div>
       <p class="gate-desc">Email outreach and landing page performance — before anyone signs up.</p>
-      <div class="metric-grid" id="g1-metrics"></div>
-      <div class="section-title">Email Performance by Channel</div>
-      <table class="data-table"><thead><tr><th>Channel</th><th class="num">Sent</th><th class="num">Open Rate</th><th class="num">CTR (of opens)</th><th class="num">Replies</th><th class="num">Bounced</th></tr></thead><tbody id="g1-email-table"></tbody></table>
+      <div class="section-title">Lemlist Cold Outreach</div>
+      <div class="metric-grid" id="g1-lemlist-metrics"></div>
+      <div class="section-title">HubSpot Sequence</div>
+      <div class="metric-grid" id="g1-hubspot-metrics"></div>
       <div class="section-title">Landing Page</div>
       <table class="data-table"><thead><tr><th>Channel</th><th class="num">Visits</th><th class="num">Sign-up Page Visits</th><th class="num">CVR</th><th>Status</th></tr></thead><tbody id="g1-reach-table"></tbody></table>
     </div>
@@ -350,9 +351,15 @@ function fmtDateTime(iso) {
 // ─────────────────────────────────────────────────────────────────────────────
 const TOOLTIPS = {
   lemlist_enrolled:    'Total leads enrolled across all active (non-paused) Lemlist campaigns matching the "Permea IH Free Trial Campaign" filter. Represents outreach reach intent — not all leads may have been emailed yet.',
+  lemlist_sent:        'Total email messages actually dispatched via Lemlist across active campaigns. Lower than enrolled if some leads are still pending or mid-sequence.',
   lemlist_open_rate:   'Of all Tier 2 bulk emails sent via Lemlist, what % were opened. Shows if subject lines and sender names are cutting through.',
   lemlist_ctr:         'Of the Lemlist emails that were opened, what % had a link clicked. Formula: clicks ÷ opens. Shows if the email body and CTA are compelling.',
-  hs_enrolled:         'Total contacts enrolled in the HubSpot warm outreach sequence by Ludger, Dennis, and Max.',
+  lemlist_bounced:     'Emails that could not be delivered — hard bounces indicate invalid or inactive addresses in the outreach list.',
+  hs_sent:             'Total contacts enrolled in the HubSpot warm outreach sequence by Ludger, Dennis, and Max. Enrolled = sequence started for that contact.',
+  hs_open_rate:        'Of all HubSpot sequence emails sent, what % were opened.',
+  hs_ctr:              'Of the HubSpot sequence emails that were opened, what % had a link clicked. Formula: clicks ÷ opens.',
+  hs_replies:          'Absolute number of replies received to the HubSpot warm outreach sequence.',
+  hs_bounced:          'Emails that could not be delivered from the HubSpot sequence — hard bounces indicate invalid addresses.',
   lp_cvr:              'Of everyone who landed on the Permea landing page, what % clicked through to the sign-up page. Target: >15%.',
   lp_visits:           'Total sessions on the Permea landing page — from ads, emails, organic. This is the top of the funnel.',
   signup_visits:       'Number of people who reached the actual sign-up page inside the product. Comes from landing page CVR.',
@@ -596,18 +603,21 @@ function renderDashboard(d) {
   const hs = d.gate1.channels.hubspot;
   const lp = d.gate1.landing_page || {};
 
-  document.getElementById('g1-metrics').innerHTML = [
-    metricCard({ id:'lemlist_enrolled',  label:'Lemlist Enrolled',        apiValue:lm.total_enrolled, suffix:'', neutral:true,                                   tooltip:TOOLTIPS.lemlist_enrolled }),
-    metricCard({ id:'hs_enrolled',       label:'HubSpot Enrolled',        apiValue:hs.enrolled,       suffix:'', neutral:true,                                   tooltip:TOOLTIPS.hs_enrolled }),
-    metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate',       apiValue:lm.open_rate,      suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
-    metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)',  apiValue:lm.ctr,            suffix:'%', benchmarkKey:'email_ctr',        benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
-    metricCard({ id:'lp_visits',         label:'Landing Page Visits',     apiValue:lp.total_visits,   suffix:'',  neutral:true, extraInfo: lp.total_visits == null ? 'Pending first data' : '', tooltip:TOOLTIPS.lp_visits }),
+  document.getElementById('g1-lemlist-metrics').innerHTML = [
+    metricCard({ id:'lemlist_enrolled',  label:'Enrolled',      apiValue:lm.total_enrolled, suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.lemlist_enrolled }),
+    metricCard({ id:'lemlist_sent',      label:'Sent',          apiValue:lm.emails_sent,    suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.lemlist_sent }),
+    metricCard({ id:'lemlist_open_rate', label:'Open Rate',     apiValue:lm.open_rate,      suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm,              tooltip:TOOLTIPS.lemlist_open_rate }),
+    metricCard({ id:'lemlist_ctr',       label:'CTR (of opens)',apiValue:lm.ctr,            suffix:'%', benchmarkKey:'email_ctr',       benchmarks:bm,              tooltip:TOOLTIPS.lemlist_ctr }),
+    metricCard({ id:'lemlist_bounced',   label:'Bounced',       apiValue:lm.bounced,        suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.lemlist_bounced }),
   ].join('');
 
-  document.getElementById('g1-email-table').innerHTML = [
-    { ch:lm.label, sent:lm.emails_sent, open:lm.open_rate, ctr:lm.ctr, rep:lm.replies, bnc:lm.bounced, rO:rag(eff('lemlist_open_rate',lm.open_rate), bm.email_open_rate), rC:rag(eff('lemlist_ctr',lm.ctr), bm.email_ctr) },
-    { ch:hs.label, sent:hs.emails_sent, open:hs.open_rate, ctr:hs.ctr, rep:hs.replies, bnc:hs.bounced, rO:rag(eff('hs_open_rate',hs.open_rate), bm.email_open_rate), rC:rag(eff('hs_ctr',hs.ctr), bm.email_ctr) },
-  ].map(r => `<tr><td>${r.ch}</td><td class="num">${r.sent ?? '—'}</td><td class="num"><span class="rag-dot ${r.rO}"></span>${fmt(r.open,'%')}</td><td class="num"><span class="rag-dot ${r.rC}"></span>${fmt(r.ctr,'%')}</td><td class="num">${r.rep ?? '—'}</td><td class="num">${r.bnc ?? '—'}</td></tr>`).join('');
+  document.getElementById('g1-hubspot-metrics').innerHTML = [
+    metricCard({ id:'hs_sent',      label:'Sent',          apiValue:hs.enrolled,   suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.hs_sent }),
+    metricCard({ id:'hs_open_rate', label:'Open Rate',     apiValue:hs.open_rate,  suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm,              tooltip:TOOLTIPS.hs_open_rate }),
+    metricCard({ id:'hs_ctr',       label:'CTR (of opens)',apiValue:hs.ctr,        suffix:'%', benchmarkKey:'email_ctr',       benchmarks:bm,              tooltip:TOOLTIPS.hs_ctr }),
+    metricCard({ id:'hs_replies',   label:'Replies',       apiValue:hs.replies,    suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.hs_replies }),
+    metricCard({ id:'hs_bounced',   label:'Bounced',       apiValue:hs.bounced,    suffix:'',  neutral:true,                                                tooltip:TOOLTIPS.hs_bounced }),
+  ].join('');
 
   document.getElementById('g1-reach-table').innerHTML = `
     <tr><td>temedica.com/permea/insighthub/freetrial</td><td class="num">${lp.total_visits !== null ? fmt(eff('lp_visits',lp.total_visits))+' sessions' : '—'}</td><td class="num">${lp.signup_page_visits ?? '—'}</td><td class="num">${lp.cvr_to_signup_page !== null ? '<span class="rag-dot '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'"></span>'+fmt(eff('lp_cvr',lp.cvr_to_signup_page),'%') : '—'}</td><td>${lp.cvr_to_signup_page !== null ? '<span class="rag-badge '+rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr)+'">'+ragLabel(rag(eff('lp_cvr',lp.cvr_to_signup_page), bm.landing_page_cvr))+'</span>' : ''}</td></tr>`;

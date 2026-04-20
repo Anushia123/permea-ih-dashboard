@@ -14,20 +14,20 @@
   "cio_journeys": {
     "_note": "CIO App API does not expose journey campaign metrics. Update from CIO > Campaigns > select campaign > Overview tab. Update weekly.",
     "pta": {
-      "sent": 16,
+      "sent": 17,
       "opened": 5,
       "clicked": 3,
-      "open_rate": 31.25,
-      "ctr": 18.75,
-      "last_updated": "2026-04-19"
+      "open_rate": 29.41,
+      "ctr": 60.0,
+      "last_updated": "2026-04-20"
     },
     "core_journey": {
       "sent": 1,
-      "opened": 0,
-      "clicked": 0,
-      "open_rate": 0.0,
-      "ctr": 0.0,
-      "last_updated": "2026-04-19"
+      "opened": 1,
+      "clicked": 1,
+      "open_rate": 100.0,
+      "ctr": 100.0,
+      "last_updated": "2026-04-20"
     },
     "urgency_journey": {
       "sent": 0,
@@ -35,7 +35,7 @@
       "clicked": 0,
       "open_rate": 0.0,
       "ctr": 0.0,
-      "last_updated": "2026-04-19"
+      "last_updated": "2026-04-20"
     }
   }
 }

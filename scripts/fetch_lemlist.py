@@ -53,7 +53,6 @@ def get_campaign_stats(campaign_id, campaign_name):
             "startDate": DATE_FROM,
             "endDate":   DATE_TO,
         })
-        print(f"  [debug] stats keys for '{campaign_name}': {list(data.keys())}", file=sys.stderr)
         stats = {
             "sent":         int(data.get("messagesSent",        0)),
             "opened":       int(data.get("opened",              0)),
@@ -61,9 +60,9 @@ def get_campaign_stats(campaign_id, campaign_name):
             "replied":      int(data.get("replied",             0)),
             "bounced":      int(data.get("messagesBounced",     0)),
             "unsubscribed": int(data.get("nbLeadsUnsubscribed", 0)),
-            "leads_total":  int(data.get("nbLeads", 0) or data.get("leadsCount", 0) or data.get("nbLeadsTotal", 0)),
+            "leads_total":  int(data.get("nbLeadsLaunched",     0)),
         }
-        print(f"  ✓ '{campaign_name}': sent={stats['sent']}, leads_total={stats['leads_total']}, opened={stats['opened']}, "
+        print(f"  ✓ '{campaign_name}': enrolled={stats['leads_total']}, sent={stats['sent']}, opened={stats['opened']}, "
               f"clicked={stats['clicked']}, replied={stats['replied']}", file=sys.stderr)
         return stats
 
@@ -113,8 +112,6 @@ def main():
         print(f"  ! No campaigns matching '{CAMPAIGN_FILTER}'", file=sys.stderr)
         print(f"  ! Available: {all_names}", file=sys.stderr)
     else:
-        if ih_campaigns:
-            print(f"  [debug] campaign object keys: {list(ih_campaigns[0].keys())}", file=sys.stderr)
         print(f"  ✓ Matched {len(ih_campaigns_all)} campaigns, {len(ih_campaigns)} active, {len(excluded)} excluded: {excluded}", file=sys.stderr)
 
     totals = {

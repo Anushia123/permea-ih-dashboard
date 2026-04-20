@@ -162,6 +162,10 @@
   .edit-clear { font-size: 10px; color: var(--text-dim); background: none; border: none; cursor: pointer; font-family: var(--font); margin-top: 4px; text-decoration: underline; display: block; }
   .edit-clear:hover { color: var(--red); }
 
+  /* Live status badge */
+  .live-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: #4caf82; text-transform: uppercase; letter-spacing: 0.06em; margin-left: 8px; }
+  .live-badge::before { content: '●'; font-size: 7px; }
+
   /* ── TABLES ── */
   .section-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; margin-top: 4px; }
   .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 24px; }
@@ -248,9 +252,9 @@
     <div class="gate-panel active" id="panel-gate1">
       <div class="gate-header"><div class="gate-title">Gate 1 — Messaging &amp; Reach</div><span class="gate-owner">Owner: Marketing</span></div>
       <p class="gate-desc">Email outreach and landing page performance — before anyone signs up.</p>
-      <div class="section-title">Lemlist Cold Outreach</div>
+      <div class="section-title">Lemlist Cold Outreach<span class="live-badge">Live</span></div>
       <div class="metric-grid" id="g1-lemlist-metrics"></div>
-      <div class="section-title">HubSpot Sequence</div>
+      <div class="section-title">HubSpot Sequence<span class="live-badge">Live</span></div>
       <div class="metric-grid" id="g1-hubspot-metrics"></div>
       <div class="section-title">Landing Page</div>
       <table class="data-table"><thead><tr><th>Channel</th><th class="num">Visits</th><th class="num">Sign-up Page Visits</th><th class="num">CVR</th><th>Status</th></tr></thead><tbody id="g1-reach-table"></tbody></table>

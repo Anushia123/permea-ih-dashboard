@@ -93,26 +93,39 @@ def main():
     all_names = [c.get("name", c.get("_id")) for c in campaigns]
     print(f"  ✓ Found {len(campaigns)} total campaigns", file=sys.stderr)
 
-    ih_campaigns = [
+    ih_campaigns_all = [
         c for c in campaigns
         if CAMPAIGN_FILTER.lower() in c.get("name", "").lower()
     ]
+    active_statuses = {"active", "running", "sending"}
+    ih_campaigns = [
+        c for c in ih_campaigns_all
+        if c.get("status", "").lower() in active_statuses
+    ]
+    excluded = [c.get("name") for c in ih_campaigns_all if c not in ih_campaigns]
 
-    if not ih_campaigns:
+    # Total leads enrolled across active campaigns only
+    total_enrolled = sum(
+        c.get("leadsCount") or c.get("nbLeads") or 0
+        for c in ih_campaigns
+    )
+
+    if not ih_campaigns_all:
         print(f"  ! No campaigns matching '{CAMPAIGN_FILTER}'", file=sys.stderr)
         print(f"  ! Available: {all_names}", file=sys.stderr)
     else:
-        print(f"  ✓ Matched {len(ih_campaigns)} campaigns: {[c.get('name') for c in ih_campaigns]}", file=sys.stderr)
+        print(f"  ✓ Matched {len(ih_campaigns_all)} campaigns, {len(ih_campaigns)} active (enrolled: {total_enrolled}), {len(excluded)} excluded: {excluded}", file=sys.stderr)
 
     totals = {
-        "source":       "lemlist",
-        "fetched_at":   datetime.now(timezone.utc).isoformat(),
-        "sent":         0,
-        "opened":       0,
-        "clicked":      0,
-        "replied":      0,
-        "bounced":      0,
-        "unsubscribed": 0,
+        "source":         "lemlist",
+        "fetched_at":     datetime.now(timezone.utc).isoformat(),
+        "total_enrolled": total_enrolled,
+        "sent":           0,
+        "opened":         0,
+        "clicked":        0,
+        "replied":        0,
+        "bounced":        0,
+        "unsubscribed":   0,
         "campaigns":    [],
     }
 

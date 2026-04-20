@@ -349,6 +349,7 @@ function fmtDateTime(iso) {
 // TOOLTIP TEXTS (Gap 13) — plain language per doc Section 3
 // ─────────────────────────────────────────────────────────────────────────────
 const TOOLTIPS = {
+  lemlist_enrolled:    'Total leads enrolled across all active (non-paused) Lemlist campaigns matching the "Permea IH Free Trial Campaign" filter. Represents outreach reach intent — not all leads may have been emailed yet.',
   lemlist_open_rate:   'Of all Tier 2 bulk emails sent via Lemlist, what % were opened. Shows if subject lines and sender names are cutting through.',
   lemlist_ctr:         'Of the Lemlist emails that were opened, what % had a link clicked. Formula: clicks ÷ opens. Shows if the email body and CTA are compelling.',
   hs_enrolled:         'Total contacts enrolled in the HubSpot warm outreach sequence by Ludger, Dennis, and Max.',
@@ -596,10 +597,11 @@ function renderDashboard(d) {
   const lp = d.gate1.landing_page || {};
 
   document.getElementById('g1-metrics').innerHTML = [
-    metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate',       apiValue:lm.open_rate,    suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
-    metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)',  apiValue:lm.ctr,          suffix:'%', benchmarkKey:'email_ctr',        benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
-    metricCard({ id:'hs_enrolled',       label:'HubSpot Enrolled',        apiValue:hs.enrolled,     suffix:'',  neutral:true,                                   tooltip:TOOLTIPS.hs_enrolled }),
-    metricCard({ id:'lp_visits',         label:'Landing Page Visits',     apiValue:lp.total_visits, suffix:'',  neutral:true, extraInfo: lp.total_visits == null ? 'Pending first data' : '', tooltip:TOOLTIPS.lp_visits }),
+    metricCard({ id:'lemlist_enrolled',  label:'Lemlist Enrolled',        apiValue:lm.total_enrolled, suffix:'', neutral:true,                                   tooltip:TOOLTIPS.lemlist_enrolled }),
+    metricCard({ id:'hs_enrolled',       label:'HubSpot Enrolled',        apiValue:hs.enrolled,       suffix:'', neutral:true,                                   tooltip:TOOLTIPS.hs_enrolled }),
+    metricCard({ id:'lemlist_open_rate', label:'Lemlist Open Rate',       apiValue:lm.open_rate,      suffix:'%', benchmarkKey:'email_open_rate', benchmarks:bm, tooltip:TOOLTIPS.lemlist_open_rate }),
+    metricCard({ id:'lemlist_ctr',       label:'Lemlist CTR (of opens)',  apiValue:lm.ctr,            suffix:'%', benchmarkKey:'email_ctr',        benchmarks:bm, tooltip:TOOLTIPS.lemlist_ctr }),
+    metricCard({ id:'lp_visits',         label:'Landing Page Visits',     apiValue:lp.total_visits,   suffix:'',  neutral:true, extraInfo: lp.total_visits == null ? 'Pending first data' : '', tooltip:TOOLTIPS.lp_visits }),
   ].join('');
 
   document.getElementById('g1-email-table').innerHTML = [

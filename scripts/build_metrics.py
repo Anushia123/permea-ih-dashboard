@@ -128,8 +128,9 @@ def build():
             "owner": "Marketing",
             "channels": {
                 "lemlist": {
-                    "label":        "Lemlist Email (Tier 2 Bulk)",
-                    "emails_sent":  lemlist.get("sent",        0),
+                    "label":          "Lemlist Email (Tier 2 Bulk)",
+                    "total_enrolled": lemlist.get("total_enrolled"),
+                    "emails_sent":    lemlist.get("sent",        0),
                     "emails_opened":lemlist.get("opened",      0),
                     "open_rate":    lemlist.get("open_rate",   0),
                     "clicks":       lemlist.get("clicked",     0),

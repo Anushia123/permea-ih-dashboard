@@ -4,30 +4,30 @@
     "_note": "HubSpot Sequences API has no statistics endpoints. Update from HubSpot > Sales > Sequences > Performance tab.",
     "enrolled": 111,
     "emails_sent": 111,
-    "open_rate": 35.14,
-    "click_rate": 17.9,
-    "reply_rate": 1.8,
-    "replies": 2,
+    "open_rate": 37.84,
+    "click_rate": 14.9,
+    "reply_rate": 2.7,
+    "replies": 3,
     "bounced": 2,
-    "last_updated": "2026-04-20"
+    "last_updated": "2026-04-23"
   },
   "cio_journeys": {
     "_note": "CIO App API does not expose journey campaign metrics. Update from CIO > Campaigns > select campaign > Overview tab. Update weekly.",
     "pta": {
-      "sent": 17,
-      "opened": 5,
-      "clicked": 3,
-      "open_rate": 29.41,
-      "ctr": 60.0,
-      "last_updated": "2026-04-20"
+      "sent": 19,
+      "opened": 14,
+      "clicked": 12,
+      "open_rate": 76.2,
+      "ctr": 81.9,
+      "last_updated": "2026-04-23"
     },
     "core_journey": {
       "sent": 1,
       "opened": 1,
       "clicked": 1,
-      "open_rate": 100.0,
-      "ctr": 100.0,
-      "last_updated": "2026-04-20"
+      "open_rate": 66.7,
+      "ctr": 66.7,
+      "last_updated": "2026-04-23"
     },
     "urgency_journey": {
       "sent": 0,
@@ -35,7 +35,7 @@
       "clicked": 0,
       "open_rate": 0.0,
       "ctr": 0.0,
-      "last_updated": "2026-04-20"
+      "last_updated": "2026-04-23"
     }
   }
 }

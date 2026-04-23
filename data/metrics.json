@@ -1,16 +1,16 @@
 {
   "meta": {
-    "last_updated": "2026-04-22T10:51:32.166644+00:00",
+    "last_updated": "2026-04-23T07:05:56.922790+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-22",
+    "period_end": "2026-04-23",
     "is_sample_data": false
   },
   "summary": {
     "total_verified_signups": 8,
     "activation_rate": 75.0,
     "segment_submissions": 4,
-    "deals_in_pipeline": 17,
+    "deals_in_pipeline": 18,
     "overall_health": "green"
   },
   "gate1": {
@@ -20,13 +20,13 @@
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
         "total_enrolled": 198,
-        "emails_sent": 177,
-        "emails_opened": 79,
+        "emails_sent": 184,
+        "emails_opened": 82,
         "open_rate": 44.6,
         "clicks": 17,
-        "ctr": 21.5,
+        "ctr": 20.7,
         "replies": 0,
-        "bounced": 20,
+        "bounced": 21,
         "unsubscribed": 0
       },
       "hubspot": {
@@ -34,10 +34,10 @@
         "enrolled": 111,
         "emails_sent": 111,
         "emails_opened": 0,
-        "open_rate": 35.14,
+        "open_rate": 37.84,
         "clicks": 0,
-        "ctr": 17.9,
-        "replies": 2,
+        "ctr": 14.9,
+        "replies": 3,
         "bounced": 2,
         "unsubscribed": 0
       },
@@ -93,12 +93,12 @@
     "submission_rate_from_signup": 50.0,
     "submission_rate_from_activation": 66.7,
     "cio_nurture": {
-      "sent": 17,
-      "opened": 5,
-      "clicked": 3,
-      "open_rate": 29.41,
-      "ctr": 60.0,
-      "last_updated": "2026-04-20"
+      "sent": 19,
+      "opened": 14,
+      "clicked": 12,
+      "open_rate": 76.2,
+      "ctr": 81.9,
+      "last_updated": "2026-04-23"
     }
   },
   "gate5": {
@@ -109,11 +109,11 @@
     "commercial_touch_rate": 25.0,
     "sales_followup_within_1day": null,
     "sales_followup_rate": null,
-    "deals_created": 17,
+    "deals_created": 18,
     "deals_closed_h1": 0,
     "deals_by_stage": {
       "Offer": 1,
-      "Problem Discovery": 10,
+      "Problem Discovery": 11,
       "Solution Validation": 4,
       "Lead": 1,
       "Closed Lost": 1
@@ -124,9 +124,9 @@
         "sent": 1,
         "opened": 1,
         "clicked": 1,
-        "open_rate": 100.0,
-        "ctr": 100.0,
-        "last_updated": "2026-04-20"
+        "open_rate": 66.7,
+        "ctr": 66.7,
+        "last_updated": "2026-04-23"
       },
       "urgency_journey": {
         "sent": 0,
@@ -134,7 +134,7 @@
         "clicked": 0,
         "open_rate": 0.0,
         "ctr": 0.0,
-        "last_updated": "2026-04-20"
+        "last_updated": "2026-04-23"
       }
     }
   },

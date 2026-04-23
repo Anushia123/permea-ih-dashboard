@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-23T07:05:56.922790+00:00",
+    "last_updated": "2026-04-23T10:57:55.501638+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-23",
@@ -10,7 +10,7 @@
     "total_verified_signups": 8,
     "activation_rate": 75.0,
     "segment_submissions": 4,
-    "deals_in_pipeline": 18,
+    "deals_in_pipeline": 19,
     "overall_health": "green"
   },
   "gate1": {
@@ -20,13 +20,13 @@
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
         "total_enrolled": 198,
-        "emails_sent": 184,
-        "emails_opened": 82,
-        "open_rate": 44.6,
+        "emails_sent": 195,
+        "emails_opened": 83,
+        "open_rate": 42.6,
         "clicks": 17,
-        "ctr": 20.7,
+        "ctr": 20.5,
         "replies": 0,
-        "bounced": 21,
+        "bounced": 23,
         "unsubscribed": 0
       },
       "hubspot": {
@@ -109,11 +109,11 @@
     "commercial_touch_rate": 25.0,
     "sales_followup_within_1day": null,
     "sales_followup_rate": null,
-    "deals_created": 18,
+    "deals_created": 19,
     "deals_closed_h1": 0,
     "deals_by_stage": {
       "Offer": 1,
-      "Problem Discovery": 11,
+      "Problem Discovery": 12,
       "Solution Validation": 4,
       "Lead": 1,
       "Closed Lost": 1

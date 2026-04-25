@@ -1,17 +1,17 @@
 {
   "meta": {
-    "last_updated": "2026-04-24T10:55:56.061564+00:00",
+    "last_updated": "2026-04-25T09:38:18.779020+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-24",
+    "period_end": "2026-04-25",
     "is_sample_data": false
   },
   "summary": {
-    "total_verified_signups": 8,
-    "activation_rate": 75.0,
+    "total_verified_signups": 9,
+    "activation_rate": 77.8,
     "segment_submissions": 4,
     "deals_in_pipeline": 19,
-    "overall_health": "green"
+    "overall_health": "yellow"
   },
   "gate1": {
     "name": "Messaging & Reach",
@@ -57,7 +57,7 @@
     "name": "Sign-Up & Account Creation",
     "owner": "Marketing + Product",
     "signup_page_visits": null,
-    "verified_signups": 8,
+    "verified_signups": 9,
     "signup_conversion_rate": null,
     "signups_by_source": {
       "customer_io": null,
@@ -70,13 +70,13 @@
   "gate3": {
     "name": "Onboarding & Activation",
     "owner": "Product + Marketing",
-    "verified_signups": 8,
+    "verified_signups": 9,
     "logged_in_within_48h": 0,
     "login_48h_rate": 0.0,
-    "activated_users": 6,
-    "activation_rate_7day": 75.0,
+    "activated_users": 7,
+    "activation_rate_7day": 77.8,
     "weekly_retention": {
-      "week1": 75.0,
+      "week1": 77.8,
       "week2": null,
       "week3": null,
       "week4": null,
@@ -87,11 +87,11 @@
   "gate4": {
     "name": "Market Monitor Submission",
     "owner": "Product",
-    "verified_signups": 8,
-    "activated_users": 6,
+    "verified_signups": 9,
+    "activated_users": 7,
     "segment_submissions": 4,
-    "submission_rate_from_signup": 50.0,
-    "submission_rate_from_activation": 66.7,
+    "submission_rate_from_signup": 44.4,
+    "submission_rate_from_activation": 57.1,
     "cio_nurture": {
       "sent": 19,
       "opened": 14,

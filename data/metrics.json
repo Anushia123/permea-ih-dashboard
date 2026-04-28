@@ -1,14 +1,14 @@
 {
   "meta": {
-    "last_updated": "2026-04-27T12:11:36.944923+00:00",
+    "last_updated": "2026-04-28T12:16:50.891111+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-27",
+    "period_end": "2026-04-28",
     "is_sample_data": false
   },
   "summary": {
-    "total_verified_signups": 9,
-    "activation_rate": 77.8,
+    "total_verified_signups": 10,
+    "activation_rate": 80.0,
     "segment_submissions": 4,
     "deals_in_pipeline": 19,
     "overall_health": "yellow"
@@ -20,11 +20,11 @@
       "lemlist": {
         "label": "Lemlist Email (Tier 2 Bulk)",
         "total_enrolled": 213,
-        "emails_sent": 215,
-        "emails_opened": 93,
-        "open_rate": 43.3,
-        "clicks": 18,
-        "ctr": 19.4,
+        "emails_sent": 221,
+        "emails_opened": 99,
+        "open_rate": 44.8,
+        "clicks": 19,
+        "ctr": 19.2,
         "replies": 0,
         "bounced": 23,
         "unsubscribed": 0
@@ -57,7 +57,7 @@
     "name": "Sign-Up & Account Creation",
     "owner": "Marketing + Product",
     "signup_page_visits": null,
-    "verified_signups": 9,
+    "verified_signups": 10,
     "signup_conversion_rate": null,
     "signups_by_source": {
       "customer_io": null,
@@ -70,13 +70,13 @@
   "gate3": {
     "name": "Onboarding & Activation",
     "owner": "Product + Marketing",
-    "verified_signups": 9,
+    "verified_signups": 10,
     "logged_in_within_48h": 0,
     "login_48h_rate": 0.0,
-    "activated_users": 7,
-    "activation_rate_7day": 77.8,
+    "activated_users": 8,
+    "activation_rate_7day": 80.0,
     "weekly_retention": {
-      "week1": 77.8,
+      "week1": 80.0,
       "week2": null,
       "week3": null,
       "week4": null,
@@ -87,11 +87,11 @@
   "gate4": {
     "name": "Market Monitor Submission",
     "owner": "Product",
-    "verified_signups": 9,
-    "activated_users": 7,
+    "verified_signups": 10,
+    "activated_users": 8,
     "segment_submissions": 4,
-    "submission_rate_from_signup": 44.4,
-    "submission_rate_from_activation": 57.1,
+    "submission_rate_from_signup": 40.0,
+    "submission_rate_from_activation": 50.0,
     "cio_nurture": {
       "sent": 23,
       "opened": 18,
@@ -113,8 +113,8 @@
     "deals_closed_h1": 0,
     "deals_by_stage": {
       "Offer": 1,
-      "Problem Discovery": 12,
-      "Solution Validation": 4,
+      "Problem Discovery": 13,
+      "Solution Validation": 3,
       "Lead": 1,
       "Closed Lost": 1
     },

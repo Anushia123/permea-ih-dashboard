@@ -1,6 +1,6 @@
 {
   "meta": {
-    "last_updated": "2026-04-29T06:53:24.237639+00:00",
+    "last_updated": "2026-04-29T12:07:06.703287+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
     "period_end": "2026-04-29",
@@ -113,8 +113,8 @@
     "deals_closed_h1": 0,
     "deals_by_stage": {
       "Offer": 1,
-      "Problem Discovery": 13,
-      "Solution Validation": 3,
+      "Problem Discovery": 9,
+      "Solution Validation": 7,
       "Lead": 1,
       "Closed Lost": 1
     },

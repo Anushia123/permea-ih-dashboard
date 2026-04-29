@@ -1,9 +1,9 @@
 {
   "meta": {
-    "last_updated": "2026-04-28T12:16:50.891111+00:00",
+    "last_updated": "2026-04-29T06:53:24.237639+00:00",
     "campaign": "Insight Hub Free Demo Access Campaign",
     "period_start": "2026-03-01",
-    "period_end": "2026-04-28",
+    "period_end": "2026-04-29",
     "is_sample_data": false
   },
   "summary": {
@@ -34,9 +34,9 @@
         "enrolled": 111,
         "emails_sent": 111,
         "emails_opened": 0,
-        "open_rate": 42.54,
+        "open_rate": 43.24,
         "clicks": 0,
-        "ctr": 14.9,
+        "ctr": 16.3,
         "replies": 3,
         "bounced": 2,
         "unsubscribed": 0
@@ -93,12 +93,12 @@
     "submission_rate_from_signup": 40.0,
     "submission_rate_from_activation": 50.0,
     "cio_nurture": {
-      "sent": 23,
-      "opened": 18,
-      "clicked": 12,
-      "open_rate": 77.8,
-      "ctr": 66.7,
-      "last_updated": "2026-04-27"
+      "sent": 25,
+      "opened": 20,
+      "clicked": 14,
+      "open_rate": 79.3,
+      "ctr": 69.0,
+      "last_updated": "2026-04-29"
     }
   },
   "gate5": {
@@ -121,12 +121,12 @@
     "h1_goal": 5,
     "cio_nurture": {
       "core_journey": {
-        "sent": 1,
+        "sent": 2,
         "opened": 1,
         "clicked": 1,
-        "open_rate": 66.7,
-        "ctr": 66.7,
-        "last_updated": "2026-04-27"
+        "open_rate": 60.0,
+        "ctr": 60.0,
+        "last_updated": "2026-04-29"
       },
       "urgency_journey": {
         "sent": 0,
@@ -134,7 +134,7 @@
         "clicked": 0,
         "open_rate": 0.0,
         "ctr": 0.0,
-        "last_updated": "2026-04-27"
+        "last_updated": "2026-04-29"
       }
     }
   },
